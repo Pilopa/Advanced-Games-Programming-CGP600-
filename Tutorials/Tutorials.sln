@@ -1,7 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tutorial_01", "Tutorial_01\Tutorial_01.vcxproj", "{6959964C-CFD6-4B6B-9AA2-99A70B88AEFD}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Schaper_Tutorial_01_Exercise_1", "Schaper_Tutorial_01_Exercise_1\Schaper_Tutorial_01_Exercise_1.vcxproj", "{6959964C-CFD6-4B6B-9AA2-99A70B88AEFD}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Schaper_Tutorial_01_Exercise_2", "Schaper_Tutorial_01_Exercise_2\Schaper_Tutorial_01_Exercise_2.vcxproj", "{B8BC27FE-C87A-41D7-989A-E0C7CA19998A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,6 +15,10 @@ Global
 		{6959964C-CFD6-4B6B-9AA2-99A70B88AEFD}.Debug|Win32.Build.0 = Debug|Win32
 		{6959964C-CFD6-4B6B-9AA2-99A70B88AEFD}.Release|Win32.ActiveCfg = Release|Win32
 		{6959964C-CFD6-4B6B-9AA2-99A70B88AEFD}.Release|Win32.Build.0 = Release|Win32
+		{B8BC27FE-C87A-41D7-989A-E0C7CA19998A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B8BC27FE-C87A-41D7-989A-E0C7CA19998A}.Debug|Win32.Build.0 = Debug|Win32
+		{B8BC27FE-C87A-41D7-989A-E0C7CA19998A}.Release|Win32.ActiveCfg = Release|Win32
+		{B8BC27FE-C87A-41D7-989A-E0C7CA19998A}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
