@@ -56,7 +56,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	{
 		DXTRACE_MSG("Failed to create Device");
 		return 0;
-	}
+	}
+
 	// Main message loop
 	MSG msg = {0};
 	while(msg.message != WM_QUIT)
@@ -200,4 +201,4 @@ void ShutdownD3D()
 	if(g_pSwapChain) g_pSwapChain->Release();
 	if(g_pImmediateContext) g_pImmediateContext->Release();
 	if(g_pD3DDevice) g_pD3DDevice->Release();
-}
+}
