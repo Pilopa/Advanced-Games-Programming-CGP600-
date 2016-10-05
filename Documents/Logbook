@@ -1,0 +1,1 @@
+I assume that backfaces of vertices are not being rendered. So when you put the vertices against clockorder the triangle faces away from you and is therefore not rendered.
