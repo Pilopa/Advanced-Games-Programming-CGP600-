@@ -1,9 +1,10 @@
-#include <windows.h>
+#pragma lib
 #include <d3d11.h>
-#include <d3dx11.h>
-#include <dxerr.h>
 #include <time.h>
-#include <xnamath.h>
+#include <DirectXMath.h>
+#include <d3dcompiler.h>
+#include <chrono>
+#include <string>
 #define _XM_NO_INTRINSICS_
 #define XM_NO_ALIGNMENT
 
@@ -13,7 +14,7 @@
 
 // Rename for each tutorial
 
-char g_TutorialName[100] = "Tutorial 02 Exercise 01\0";
+const char g_TutorialName[100] = "Tutorial 03 Exercise 01\0";
 
 // Window Specific Variables
 
@@ -28,6 +29,7 @@ ID3D11Device* g_pD3DDevice = NULL;
 ID3D11DeviceContext* g_pImmediateContext = NULL;
 ID3D11RenderTargetView* g_pBackBufferRTView = NULL;
 IDXGISwapChain* g_pSwapChain = NULL;
+const LPCWSTR g_pShaderFileName = L"shaders.hlsl";
 
 // Vertex Buffer
 ID3D11Buffer* g_pVertexBuffer;
@@ -48,8 +50,7 @@ float tx;
 float ty;
 
 // FPS Measurement, for more info about time measurement: http://stackoverflow.com/questions/14337278/precise-time-measurement
-LARGE_INTEGER fpsTimer_frequency;        // ticks per second
-LARGE_INTEGER fpsTimer_t1, fpsTimer_t2;           // ticks
+long long fpsTimer_t1, fpsTimer_t2; // timestamps
 double fpsTimer_elapsedTime;
 double FPS;
 
@@ -59,8 +60,8 @@ double FPS;
 
 struct POS_COL_VERTEX
 {
-	XMFLOAT3 Pos;
-	XMFLOAT4 Col;
+	DirectX::XMFLOAT3 Pos;
+	DirectX::XMFLOAT4 Col;
 };
  
 //////////////////////////////////////////////////////////////////////////////////////
@@ -77,7 +78,6 @@ void RandomizeRed();
 void RandomizeGreen();
 void RandomizeBlue();
 void ShutdownD3D();
-float Clamp(float f, float lower, float upper);
 
 //////////////////////////////////////////////////////////////////////////////////////
 // Entry point to the program. Initializes everything and goes into a message processing
@@ -93,7 +93,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// exit the program with an error message on failure
 	if(FAILED(InitialiseWindow(hInstance, nCmdShow)))
 	{
-		DXTRACE_MSG("Failed to create Window");
+		OutputDebugStringA("Failed to create Window");
 		return 0;
 	}
 
@@ -101,19 +101,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// exit the program with an error message on failure
 	if(FAILED(InitialiseD3D()))
 	{
-		DXTRACE_MSG("Failed to create Device");
+		OutputDebugStringA("Failed to create Device");
 		return 0;
 	}
 
 	// 03-01
 	if(FAILED(InitialiseGraphics()))
 	{
-		DXTRACE_MSG("Failed to initialise graphics");
+		OutputDebugStringA("Failed to initialise graphics");
 		return 0;
 	}
 
 	// Initialize random seed
-	srand (time(NULL));
+	srand (time(NULL)); // Used by Background Color Randomization
 
 	// Main message loop
 	MSG msg = {0};
@@ -127,17 +127,26 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		}
 		else
 		{
-			QueryPerformanceFrequency(&fpsTimer_frequency);
-			QueryPerformanceCounter(&fpsTimer_t2);
-			fpsTimer_elapsedTime = (fpsTimer_t2.QuadPart - fpsTimer_t1.QuadPart) * 1000.0 / fpsTimer_frequency.QuadPart;
-			FPS = 1.0 / fpsTimer_elapsedTime;
-			
-			// SetWindowText(g_hWnd, g_TutorialName + to_string(FPS)); // Missing String libraries from C++ 11 as i am using VS2010 at home atm
+
+			fpsTimer_t2 = std::chrono::high_resolution_clock::now().time_since_epoch().count(); // timestamp in nanoseconds
+
+			// Calculate time delta
+			fpsTimer_elapsedTime = (fpsTimer_t2 - fpsTimer_t1) / 1000.0 / 1000.0 / 1000.0; // delta time in seconds
+
+			// Update FPS Display once a second
+			if (GetTickCount() % 1000 == 0) { // The method used is probably windows specific and should be replaced
+
+				// Calculate FPS
+				FPS = 1.0 / fpsTimer_elapsedTime;
+
+				// Update Window Title
+				SetWindowText(g_hWnd, (std::string(g_TutorialName) + std::string(" - ") + std::to_string((int)FPS) + std::string(" FPS ")).c_str());
+			}
 
 			// RandomizeBackgroundColor();
 			RenderFrame();
 			
-			QueryPerformanceCounter(&fpsTimer_t1);
+			fpsTimer_t1 = std::chrono::high_resolution_clock::now().time_since_epoch().count(); // timestamp in nanoseconds
 		}
 	}
 
@@ -330,17 +339,121 @@ HRESULT InitialiseD3D()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
+// Initialize Vertex Buffer
+//////////////////////////////////////////////////////////////////////////////////////
+HRESULT InitialiseGraphics(void)
+{
+	HRESULT hr = S_OK;
+
+	// Defines a triangle of vertices, with each vertex having a distinct color
+	POS_COL_VERTEX vertices[] = 
+	{
+		{ DirectX::XMFLOAT3(0.9f, 0.9f, 0.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f)},
+		{ DirectX::XMFLOAT3(0.9f, -0.9f, 0.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f)},
+		{ DirectX::XMFLOAT3(-0.9f, -0.9f, 0.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f)}
+	};
+
+	// Set up and create vertex buffer
+	D3D11_BUFFER_DESC bufferDesc;
+	ZeroMemory(&bufferDesc, sizeof(bufferDesc));
+	bufferDesc.Usage = D3D11_USAGE_DYNAMIC; // CPU + GPU usage
+	bufferDesc.ByteWidth = sizeof(POS_COL_VERTEX) * 3; // Buffersize has space for ! 3 ! vertices
+	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER; // Use created Buffer as Vertex Buffer
+	bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE; // Allow CPU access
+	hr = g_pD3DDevice->CreateBuffer(&bufferDesc, NULL, &g_pVertexBuffer); // Finally attempts to create the buffer
+
+	if (FAILED(hr)) { // Returns error on failure
+		return hr;
+	}
+
+	// Copy vertices to buffer
+	D3D11_MAPPED_SUBRESOURCE ms;
+
+	// Lock the buffer to allow writing
+	g_pImmediateContext->Map(g_pVertexBuffer, NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);
+
+	// Copy the data
+	memcpy(ms.pData, vertices, sizeof(vertices));
+
+	// Unlock the buffer
+	g_pImmediateContext->Unmap(g_pVertexBuffer, NULL);
+
+	// Load and compile shaders
+	ID3DBlob *VS, *PS, *error;
+
+	// Vertexshader
+	hr = D3DCompileFromFile(g_pShaderFileName, 0, 0, "VShader", "vs_4_0", 0, 0, &VS, &error);
+
+	if (error != 0) { // Check for shader compilation error
+		OutputDebugStringA((char*)error->GetBufferPointer());
+		error->Release();
+		if (FAILED(hr)) { // Dont fail if erro is just a warning
+			return hr;
+		}
+	}
+
+	// Pixelshader
+	hr = D3DCompileFromFile(g_pShaderFileName, 0, 0, "PShader", "ps_4_0", 0, 0, &PS, &error);
+
+	if (error != 0) { // Check for shader compilation error
+		OutputDebugStringA((char*)error->GetBufferPointer());
+		error->Release();
+		if (FAILED(hr)) { // Dont fail if erro is just a warning
+			return hr;
+		}
+	}
+
+	// Create shader objects
+
+	// Vertex Shader
+	hr = g_pD3DDevice->CreateVertexShader(VS->GetBufferPointer(), VS->GetBufferSize(), NULL, &g_pVertexShader);
+
+	if (FAILED(hr)) {
+		return hr;
+	}
+
+	// Pixel Shader
+	hr = g_pD3DDevice->CreatePixelShader(PS->GetBufferPointer(), PS->GetBufferSize(), NULL, &g_pPixelShader);
+
+	if (FAILED(hr)) {
+		return hr;
+	}
+
+	// Set the shader objects as active
+	g_pImmediateContext->VSSetShader(g_pVertexShader, 0, 0);
+	g_pImmediateContext->PSSetShader(g_pPixelShader, 0, 0);
+
+	// Create nad set the input layout object
+	D3D11_INPUT_ELEMENT_DESC iedesc[] = {
+		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
+	};
+
+	hr = g_pD3DDevice->CreateInputLayout(iedesc, 2, VS->GetBufferPointer(), VS->GetBufferSize(), &g_pInputLayout);
+
+	if (FAILED(hr)) {
+		return hr;
+	}
+
+	g_pImmediateContext->IASetInputLayout(g_pInputLayout);
+
+	return S_OK;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
 // Clean up D3D objects
 //////////////////////////////////////////////////////////////////////////////////////
 void ShutdownD3D()
 {
+	if(g_pVertexBuffer) g_pVertexBuffer->Release(); // 03-01
+	if (g_pInputLayout) g_pInputLayout->Release(); // 03-01
+	if (g_pVertexShader) g_pVertexShader->Release(); // 03-01
+	if (g_pPixelShader) g_pPixelShader->Release(); // 03-01
 	if(g_pBackBufferRTView) g_pBackBufferRTView->Release();
 	if(g_pSwapChain) g_pSwapChain->Release();
 	if(g_pImmediateContext) g_pImmediateContext->Release();
 	if(g_pD3DDevice) g_pD3DDevice->Release();
 }
-
-
 
 //////////////////////////////////////////////////////////////////////////////////////
 // Render frame
@@ -408,8 +521,4 @@ void RandomizeGreen() {
 
 void RandomizeBlue() {
 	g_clear_colour[2] = (float) (rand() % 101) / 100.0F;
-}
-
-float Clamp(float f, float lower, float upper) {
-	return max(lower, min(f, upper));
 }
