@@ -1,0 +1,4 @@
+03.02.02 : I assume that backfaces of vertices are not being rendered. So when you put the vertices against clockorder the triangle faces away from you and is therefore not rendered.
+03.02.03 : Triangle Strips use less memory. (https://msdn.microsoft.com/en-us/library/windows/desktop/bb206274(v=vs.85).aspx)
+03.Adv.01/02 : I know how i would do it but i skip those exercises to save time.
+03.Adv.03 : Works totally fine, no problems.
