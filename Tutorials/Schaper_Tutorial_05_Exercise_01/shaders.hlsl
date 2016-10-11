@@ -11,11 +11,10 @@ cbuffer CBuffer0
 	float2 packing; // 2x4 bytes = 8 bytes
 } // = 80 bytes
 
-VOut VShader(float4 position : POSITION, float4 color : COLOR) {
+VOut VShader(float3 position : POSITION, float4 color : COLOR) {
 	VOut output;
 
-	float4 pos = mul(position, WVPMatrix);
-	output.position = pos;
+	output.position = mul(float4(position, 1.0F), WVPMatrix);
 	output.color = color;
 
 	output.color.r *= red_fraction;

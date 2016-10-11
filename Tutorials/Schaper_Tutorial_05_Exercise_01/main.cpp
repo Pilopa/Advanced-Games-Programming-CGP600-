@@ -447,7 +447,7 @@ HRESULT InitialiseGraphics(void)
 	ZeroMemory(&constant_buffer_desc, sizeof(constant_buffer_desc));
 
 	constant_buffer_desc.Usage = D3D11_USAGE_DEFAULT; // Can use UpdateSubresource() to update
-	constant_buffer_desc.ByteWidth = 80; // Must be multiple of 16, calculate from CB struct
+	constant_buffer_desc.ByteWidth = sizeof(CONSTANT_BUFFER0); // Must be multiple of 16, calculate from CB struct
 	constant_buffer_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER; // Use as constant buffer
 
 	hr = g_pD3DDevice->CreateBuffer(&constant_buffer_desc, NULL, &g_pConstantBuffer0);
@@ -462,6 +462,7 @@ HRESULT InitialiseGraphics(void)
 //////////////////////////////////////////////////////////////////////////////////////
 void ShutdownD3D()
 {
+	if (g_pConstantBuffer0) g_pConstantBuffer0->Release();
 	if(g_pVertexBuffer) g_pVertexBuffer->Release(); // 03-01
 	if (g_pInputLayout) g_pInputLayout->Release(); // 03-01
 	if (g_pVertexShader) g_pVertexShader->Release(); // 03-01
@@ -486,11 +487,11 @@ void RenderFrame(void)
 	float aspectRatio = height == 0.0F ? width : width / height;
 
 	// Define translation matrices
-	scale = DirectX::XMMatrixScaling(1.0F, 1.0F, 1.0F); // Currently not being used by shader
-	rotation = DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(45.0)); // Currently not being used by shader
-	translation = DirectX::XMMatrixTranslation(0.0F, 0.0F, 0.0F);
+	scale = DirectX::XMMatrixScaling(1.0F, 1.0F, 1.0F);
+	rotation = DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(10.0));
+	translation = DirectX::XMMatrixTranslation(1.0F, 0.0F, 5.0F);
 
-	world_transform = translation; // scale * rotation * 
+	world_transform = scale * rotation * translation;
 	projection = DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(45.0), aspectRatio, 1.0, 100.0);
 	view = DirectX::XMMatrixIdentity();
 
@@ -504,6 +505,7 @@ void RenderFrame(void)
 
 	// Apply constant buffer
 	g_pImmediateContext->UpdateSubresource(g_pConstantBuffer0, 0, 0, &cb0_values, 0, 0);
+	g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer0);
 
 	// Clear the back buffer - choose a colour you like
 	g_pImmediateContext->ClearRenderTargetView(g_pBackBufferRTView, g_clear_colour);
