@@ -25,6 +25,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Schaper_Tutorial_05_Extra_0
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Schaper_Tutorial_06_Exercise_01", "Schaper_Tutorial_06_Exercise_01\Schaper_Tutorial_06_Exercise_01.vcxproj", "{4DF09809-C7D6-467E-AC0E-E25243B491FD}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Schaper_Tutorial_07_Exercise_01", "Schaper_Tutorial_07_Exercise_01\Schaper_Tutorial_07_Exercise_01.vcxproj", "{AFDAEAB4-58B9-47DE-B9B3-DE53249CFE44}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Schaper_Tutorial_08_Exercise_01", "Schaper_Tutorial_08_Exercise_01\Schaper_Tutorial_08_Exercise_01.vcxproj", "{92D7E52A-CE0F-49A1-A0EB-0977C8A45467}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -75,6 +79,14 @@ Global
 		{4DF09809-C7D6-467E-AC0E-E25243B491FD}.Debug|Win32.Build.0 = Debug|Win32
 		{4DF09809-C7D6-467E-AC0E-E25243B491FD}.Release|Win32.ActiveCfg = Release|Win32
 		{4DF09809-C7D6-467E-AC0E-E25243B491FD}.Release|Win32.Build.0 = Release|Win32
+		{AFDAEAB4-58B9-47DE-B9B3-DE53249CFE44}.Debug|Win32.ActiveCfg = Debug|Win32
+		{AFDAEAB4-58B9-47DE-B9B3-DE53249CFE44}.Debug|Win32.Build.0 = Debug|Win32
+		{AFDAEAB4-58B9-47DE-B9B3-DE53249CFE44}.Release|Win32.ActiveCfg = Release|Win32
+		{AFDAEAB4-58B9-47DE-B9B3-DE53249CFE44}.Release|Win32.Build.0 = Release|Win32
+		{92D7E52A-CE0F-49A1-A0EB-0977C8A45467}.Debug|Win32.ActiveCfg = Debug|Win32
+		{92D7E52A-CE0F-49A1-A0EB-0977C8A45467}.Debug|Win32.Build.0 = Debug|Win32
+		{92D7E52A-CE0F-49A1-A0EB-0977C8A45467}.Release|Win32.ActiveCfg = Release|Win32
+		{92D7E52A-CE0F-49A1-A0EB-0977C8A45467}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
