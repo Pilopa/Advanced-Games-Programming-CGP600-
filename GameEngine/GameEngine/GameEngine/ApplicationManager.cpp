@@ -1,6 +1,8 @@
 #pragma once
 
 #include "ApplicationManager.h"
+#include "GraphicsManager.h"
+#include "GameManager.h"
 #include "Exceptions.h"
 
 /* Static Declarations */
@@ -25,6 +27,8 @@ LRESULT ApplicationManager::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 		break;
 
 	case WM_SIZE:
+		if (GraphicsManager::isInitialized())
+			GraphicsManager::instance()->resizeBuffers(LOWORD(lParam), HIWORD(lParam));
 		break;
 
 	default:
@@ -71,17 +75,15 @@ int ApplicationManager::executeMessageLoop()
 	while (msg.message != WM_QUIT)
 	{
 
-		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		else
-		{
-			// Execute GameManager update if present
-			if (GameManager::instance())
-				GameManager::instance()->executeGameLoopTick();
-		}
+
+		// Execute GameManager update if present
+		if (GameManager::instance())
+			GameManager::instance()->executeGameLoopTick();
 	}
 
 	return (int) msg.wParam;

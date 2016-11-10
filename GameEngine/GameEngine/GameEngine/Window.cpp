@@ -2,6 +2,7 @@
 
 #include "Window.h"
 #include "Exceptions.h"
+#include "Debug.h"
 
 ATOM Window::RegisterClass(char * name, UINT style, HINSTANCE hInstance, WNDPROC wndProc)
 {
@@ -37,6 +38,15 @@ void Window::getBounds(RECT * out)
 HWND Window::getWinAPIWindowInstance()
 {
 	return windowInstance;
+}
+
+float Window::getAspectRatio()
+{
+	RECT bounds;
+	GetClientRect(windowInstance, &bounds);
+	long width = abs(bounds.right - bounds.left);
+	long height = abs(bounds.bottom - bounds.top);
+	return height == 0L ? (width == 0L ? 1 : width) : (float) width / (float) height;
 }
 
 HRESULT Window::init(ATOM windowClass, HINSTANCE hInstance, char * title, RECT dimensions, int nCmdShow)

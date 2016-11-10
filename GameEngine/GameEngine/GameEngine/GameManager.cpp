@@ -3,6 +3,8 @@
 #include <string>
 #include <chrono>
 #include "GameManager.h"
+#include "GraphicsManager.h"
+#include "InputManager.h"
 #include "Debug.h"
 
 GameManager::GameManager()
@@ -19,14 +21,16 @@ GameManager * GameManager::instance()
 	return s_instance;
 }
 
-
 void GameManager::executeGameLoopTick()
 {
+	// Reset Input
+	InputManager::instance()->reset();
+
 	// Calculate deltaTime
 	long long tmpTimer = timer;
 	timer = std::chrono::high_resolution_clock::now().time_since_epoch().count();
 	deltaTime = (timer - tmpTimer) / 1000000.0;
-	LogInfo((std::string("deltaTime: ") + std::to_string(this->getDeltaTime()) + std::string("\n")).c_str());
+	//LogInfo((std::string("deltaTime: ") + std::to_string(this->getDeltaTime()) + std::string("\n")).c_str());
 
 	// Call Update if there is an active scene
 	if (scene) scene->update();
@@ -51,4 +55,9 @@ void GameManager::setScene(Scene * scene)
 		if (this->scene)
 			this->scene->awake();
 	}
+}
+
+Scene * GameManager::getScene()
+{
+	return scene;
 }

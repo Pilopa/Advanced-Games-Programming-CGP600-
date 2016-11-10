@@ -620,7 +620,7 @@ void RenderFrame(void)
 	translation = DirectX::XMMatrixTranslation(1.0F, 0.0F, 5.0F);
 
 	world_transform = scale * rotation * translation;
-	projection = DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(45.0), aspectRatio, 1.0, 100.0);
+	projection = DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(70.0), aspectRatio, 1.0, 100.0);
 
 	DirectX::XMVECTOR position = DirectX::XMVectorSet(0.0, 0.0, -5.0, 0.0);
 	DirectX::XMVECTOR lookat = DirectX::XMVectorSet(0.0, 0.0, -4.0, 0.0);

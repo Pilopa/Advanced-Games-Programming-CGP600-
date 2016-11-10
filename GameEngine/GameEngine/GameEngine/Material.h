@@ -5,9 +5,14 @@
 #include "VertexShader.h"
 #include "PixelShader.h"
 
+struct MATERIAL_CONSTANT_BUFFER {
+
+};
+
 class Material : public Resource {
 
 	public:
+		Material(VertexShader* vertexShader, PixelShader* pixelShader, Texture* texture);
 		VertexShader* getVertexShader();
 		PixelShader* getPixelShader();
 
@@ -15,5 +20,4 @@ class Material : public Resource {
 		Texture* texture = nullptr;
 		VertexShader* vertexShader = nullptr;
 		PixelShader* pixelShader = nullptr;
-		ID3D11Buffer* constantBuffer = nullptr;
 };

@@ -3,7 +3,6 @@
 #include <windows.h>
 #include <functional>
 #include "Window.h"
-#include "GameManager.h"
 #include "Exceptions.h"
 
 class ApplicationManager {
@@ -17,12 +16,11 @@ class ApplicationManager {
 		Window* getWindow();
 
 		static ApplicationManager* instance() {
-			if (!s_instance)
-				throw UninitializedException("ApplicationManager");
 			return s_instance;
 		}
 
 		static void initialize(ApplicationManager* app);
+
 
 	private:
 

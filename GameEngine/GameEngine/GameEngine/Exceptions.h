@@ -42,8 +42,9 @@ class AlreadyInitializedException : std::exception {
 		return (std::string(varName) + std::string(" has already been initialized!")).c_str();
 	}
 
-public:
-	AlreadyInitializedException(LPCSTR varName) {
-		this->varName = varName;
-	}
+	public:
+
+		AlreadyInitializedException(LPCSTR varName) {
+			this->varName = varName;
+		}
 };

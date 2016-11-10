@@ -8,8 +8,9 @@ class MeshRenderer : public Renderer {
 
 	public:
 		void update(); // Overrides Component::update
-		void awake(); // Overrides Component::awake
 		void draw(); // Overrides Renderer:draw
+
+		MeshRenderer(Mesh* mesh, Material* material);
 
 	private:
 		Mesh* mesh;

@@ -5,7 +5,7 @@
 
 GameObject::GameObject()
 {
-	components.insert(new Transform());
+	components.insert(&transform);
 }
 
 void GameObject::update()
@@ -49,4 +49,30 @@ void GameObject::setParent(GameObject* parent)
 
 	// Add this object to the new parent's child list
 	if (this->parent) this->parent->children.insert(this);
+}
+
+void GameObject::addComponent(Component * component)
+{
+	components.insert(component);
+	component->setGameObject(this);
+}
+
+Scene * GameObject::getScene()
+{
+	return scene;
+}
+
+void GameObject::setScene(Scene * scene)
+{
+	this->scene = scene;
+
+	// Change scene of children
+	for (std::set<GameObject*>::const_iterator iterator = children.begin(), end = children.end(); iterator != end; ++iterator) {
+		((GameObject*)*iterator)->setScene(scene);
+	}
+}
+
+Transform * GameObject::getTransform()
+{
+	return &transform;
 }

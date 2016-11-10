@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Scene.h"
-#include "GraphicsManager.h"
 
 class GameManager {
 
@@ -16,6 +15,8 @@ class GameManager {
 		// Overrides the currently active scene with a new one,
 		// displaying it immediatly
 		void setScene(Scene* scene);
+
+		Scene* getScene();
 
 		static GameManager* instance();
 

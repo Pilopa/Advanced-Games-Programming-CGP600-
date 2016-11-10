@@ -1,10 +1,11 @@
-#include "PixelShader.h"
+#pragma once
 
 #include <d3dcompiler.h>
 #include <string>
 #include "GraphicsManager.h"
 #include "VertexShader.h"
 #include "Debug.h"
+#include "PixelShader.h"
 
 ID3D11PixelShader * PixelShader::getD3DPixelShaderInstance()
 {

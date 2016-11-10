@@ -4,4 +4,12 @@
 
 class Shader {
 
+	public:
+		ID3D11Buffer* getConstantBuffer();
+		
+
+	protected:
+		ID3D11Buffer* constantBuffer = nullptr;
+		
+
 };

@@ -9,6 +9,7 @@ class Window {
 		void setTitle(LPCSTR title);
 		void getBounds(RECT* out);
 		HWND getWinAPIWindowInstance();
+		float getAspectRatio();
 
 		static ATOM RegisterClass(char* name, UINT style, HINSTANCE hInstance, WNDPROC wndProc);
 

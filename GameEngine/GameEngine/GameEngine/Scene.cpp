@@ -19,9 +19,15 @@ void Scene::update()
 void Scene::addRootObject(GameObject * object)
 {
 	rootGameObjects.insert(object);
+	object->setScene(this);
 }
 
 void Scene::setActiveCamera(Camera * camera)
 {
 	this->activeCamera = camera;
+}
+
+Camera * Scene::getActiveCamera()
+{
+	return activeCamera;
 }

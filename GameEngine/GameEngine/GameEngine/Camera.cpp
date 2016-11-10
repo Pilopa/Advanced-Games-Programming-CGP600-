@@ -1,37 +1,44 @@
-#include "camera.h"
+#pragma once
 
-Camera::Camera(float x, float y, float z, float camera_rotation)
+#include "Camera.h"
+#include "Debug.h"
+#include "GameObject.h"
+
+Camera::Camera(PROJECTION_TYPE projectionType, float fov_angle, float near_z, float far_z, float size)
 {
-	m_x = x;
-	m_y = y;
-	m_z = z;
-	m_camera_rotation = camera_rotation;
-	m_up = DirectX::XMVectorSet(0.0F, 1.0F, 0.0F, 0.0F);
-	Recalculate();
+	this->projectionType = projectionType;
+	this->fov_angle = fov_angle;
+	this->near_z = near_z;
+	this->far_z = far_z;
+	this->size = size;
 }
 
-void Camera::Recalculate() {
-	m_dx = sin(m_camera_rotation * (DirectX::XM_PI / 180.0));
-	m_dz = cos(m_camera_rotation * (DirectX::XM_PI / 180.0));
-	m_position = DirectX::XMVectorSet(m_x, m_y, m_z, 0.0F);
-	m_lookat = DirectX::XMVectorSet(m_x + m_dx, m_y, m_z + m_dz, 0.0F);
-}
-
-void Camera::Rotate(float degrees)
+DirectX::XMMATRIX Camera::getViewMatrix()
 {
-	m_camera_rotation += degrees;
-	Recalculate();
+	return DirectX::XMMatrixInverse(nullptr, getGameObject()->getTransform()->getWorldMatrix());
 }
 
-void Camera::Forward(float distance)
+DirectX::XMMATRIX Camera::getProjectionMatrix(float aspectRatio)
 {
-	m_x += m_dx * distance;
-	m_z += m_dz * distance;
-	Recalculate();
+	switch (projectionType) {
+		case PERSPECTIVE:
+			return DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(fov_angle), aspectRatio, near_z, far_z);
+			break;
+		case ORTHOGRAPHIC:
+			return DirectX::XMMatrixOrthographicLH(size, size * aspectRatio, near_z, far_z);
+			break;
+		default:
+			LogError("Unknown camera projection type!");
+			return DirectX::XMMatrixIdentity();
+	}
 }
 
-DirectX::XMMATRIX Camera::GetViewMatrix()
+void Camera::update()
 {
-	return DirectX::XMMatrixLookAtLH(m_position, m_lookat, m_up);
+	// Do nothing
 }
 
+void Camera::awake()
+{
+	// Do nothing
+}

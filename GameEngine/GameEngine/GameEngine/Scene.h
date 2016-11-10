@@ -13,10 +13,11 @@ class Scene {
 
 		void addRootObject(GameObject* object);
 		void setActiveCamera(Camera* camera);
+		Camera* getActiveCamera();
 
 	private:
 
 		std::set<GameObject*> rootGameObjects;
-		Camera* activeCamera;
+		Camera* activeCamera = nullptr;
 
 };
