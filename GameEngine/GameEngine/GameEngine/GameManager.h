@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Scene.h"
+#include "ClassDef.h"
 
 class GameManager {
 

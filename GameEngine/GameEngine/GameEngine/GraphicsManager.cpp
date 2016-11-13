@@ -3,6 +3,11 @@
 #include <memory>
 #include "GraphicsManager.h"
 #include "ApplicationManager.h"
+#include "LightingManager.h"
+#include "Renderer.h"
+#include "Mesh.h"
+#include "Vertex.h"
+#include "Debug.h"
 
 const float GraphicsManager::DEFAULT_BACKGROUND_COLOR[] = { 1.0F, 1.0F, 1.0F, 1.0F };
 
@@ -88,13 +93,73 @@ GraphicsManager::GraphicsManager()
 	if (FAILED(result))
 		throw GraphicsManagerCreationException();
 
+	// Setup Depth Buffer State
+	D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
+	ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
+
+	// Set up the description of the stencil state.
+	depthStencilDesc.DepthEnable = false;
+	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+	depthStencilDesc.StencilEnable = false;
+	depthStencilDesc.StencilReadMask = 0xFF;
+	depthStencilDesc.StencilWriteMask = 0xFF;
+
+	// Stencil operations if pixel is front-facing.
+	depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+	depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	// Stencil operations if pixel is back-facing.
+	depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+	depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	// Create the depth stencil state.
+	result = device->CreateDepthStencilState(&depthStencilDesc, &zBufferStateDisabled);
+	if (FAILED(result))
+		throw GraphicsManagerCreationException();
+
+	deviceContext->OMSetDepthStencilState(NULL, 1);
+
+	// Setup the raster description which will determine how and what polygons will be drawn.
+	D3D11_RASTERIZER_DESC rasterDesc;
+	ZeroMemory(&rasterDesc, sizeof(rasterDesc));
+	rasterDesc.AntialiasedLineEnable = false;
+	rasterDesc.CullMode = D3D11_CULL_BACK;
+	rasterDesc.DepthBias = 0;
+	rasterDesc.DepthBiasClamp = 0.0f;
+	rasterDesc.DepthClipEnable = true;
+	rasterDesc.FillMode = D3D11_FILL_SOLID;
+	rasterDesc.FrontCounterClockwise = false;
+	rasterDesc.MultisampleEnable = false;
+	rasterDesc.ScissorEnable = false;
+	rasterDesc.SlopeScaledDepthBias = 0.0f;
+
+	// Create the rasterizer state from the description we just filled out.
+	result = device->CreateRasterizerState(&rasterDesc, &rasterState);
+	if (FAILED(result))
+		throw GraphicsManagerCreationException();
+
+	// Now set the rasterizer state.
+	deviceContext->RSSetState(rasterState);
+
 	if (FAILED(setupBackbuffer(width, height, sd.SampleDesc.Count)))
+		throw GraphicsManagerCreationException();
+
+	if (FAILED(setupDeferredShadingResources(width, height, sd.SampleDesc.Count)))
 		throw GraphicsManagerCreationException();
 
 	if (FAILED(setupRenderTargetView()))
 		throw GraphicsManagerCreationException();
 
 	if (FAILED(setupViewport(width, height)))
+		throw GraphicsManagerCreationException();
+
+	if (FAILED(setupRenderQuad(width, height)))
 		throw GraphicsManagerCreationException();
 
 	initialized = true;
@@ -160,9 +225,142 @@ HRESULT GraphicsManager::setupViewport(UINT width, UINT height)
 	return result;
 }
 
+HRESULT GraphicsManager::setupRenderQuad(UINT width, UINT height)
+{
+
+	if (renderQuad) {
+		renderQuad->release();
+		delete renderQuad;
+		renderQuad = nullptr;
+	}
+	int vertexCount = 6;
+	std::vector<Vertex> vertices(vertexCount, Vertex());
+	std::vector<UINT> indices(vertexCount, 0);
+	int i;
+
+	// Load the vertex array with data.
+	// First triangle.
+	vertices[0].Pos = { -1.0f, 1.0f, 0.0f };  // Top left.
+	vertices[0].TexCoord = { 0.0f, 0.0f };
+
+	vertices[1].Pos = { 1.0f, -1.0f, 0.0f };  // Bottom right.
+	vertices[1].TexCoord = { 1.0f, 1.0f };
+
+	vertices[2].Pos = { -1.0f, -1.0, 0.0f };  // Bottom left.
+	vertices[2].TexCoord = { 0.0f, 1.0f };
+
+	// Second triangle.
+	vertices[3].Pos = { -1.0f, 1.0f, 0.0f };  // Top left.
+	vertices[3].TexCoord = { 0.0f, 0.0f };
+
+	vertices[4].Pos = { 1.0f, 1.0f, 0.0f };  // Top right.
+	vertices[4].TexCoord = { 1.0f, 0.0f };
+
+	vertices[5].Pos = { 1.0f, -1.0f, 0.0f };  // Bottom right.
+	vertices[5].TexCoord = { 1.0f, 1.0f };
+
+	// Load the index array with data.
+	for (i = 0; i<vertexCount; i++)
+	{
+		indices[i] = i;
+	}
+
+	renderQuad = new Mesh(vertices, indices, this);
+
+	return S_OK;
+}
+
+HRESULT GraphicsManager::setupDeferredShadingResources(UINT width, UINT height, UINT sampleCount)
+{
+	D3D11_TEXTURE2D_DESC textureDesc;
+	HRESULT result;
+	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
+	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+	int i;
+
+	// Initialize the render target texture description.
+	ZeroMemory(&textureDesc, sizeof(textureDesc));
+
+	// Setup the render target texture description.
+	textureDesc.Width = width;
+	textureDesc.Height = height;
+	textureDesc.MipLevels = 1;
+	textureDesc.ArraySize = 1;
+	textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	textureDesc.SampleDesc.Count = 1;
+	textureDesc.Usage = D3D11_USAGE_DEFAULT;
+	textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	textureDesc.CPUAccessFlags = 0;
+	textureDesc.MiscFlags = 0;
+
+	// Create the render target textures.
+	for (i = 0; i<BUFFER_COUNT; i++)
+	{
+
+		// Release previously stored texture
+		if (deferredRenderTargetTextures[i] != nullptr) {
+			deferredRenderTargetTextures[i]->Release();
+			deferredRenderTargetTextures[i] = nullptr;
+		}
+
+		// Create new texture
+		result = device->CreateTexture2D(&textureDesc, NULL, &deferredRenderTargetTextures[i]);
+		if (FAILED(result))
+		{
+			return result;
+		}
+	}
+
+	// Setup the description of the render target view.
+	renderTargetViewDesc.Format = textureDesc.Format;
+	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	renderTargetViewDesc.Texture2D.MipSlice = 0;
+
+	// Create the render target views.
+	for (i = 0; i<BUFFER_COUNT; i++)
+	{
+		result = device->CreateRenderTargetView(deferredRenderTargetTextures[i], NULL, &deferredRenderTargetViews[i]);
+		if (FAILED(result))
+		{
+			return result;
+		}
+	}
+
+	// Setup the description of the shader resource view.
+	shaderResourceViewDesc.Format = textureDesc.Format;
+	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+	shaderResourceViewDesc.Texture2D.MipLevels = 1;
+
+	// Attempt to create shader resource views
+	for (i = 0; i < BUFFER_COUNT; i++)
+	{
+		// Release previously stored resource views
+		if (deferredShaderResources[i] != nullptr) {
+			deferredShaderResources[i]->Release();
+			deferredShaderResources[i] = nullptr;
+		}
+
+		result = device->CreateShaderResourceView(deferredRenderTargetTextures[i], &shaderResourceViewDesc, &deferredShaderResources[i]);
+		if (FAILED(result))
+		{
+			return result;
+		}
+	}
+
+	return S_OK;
+
+}
+
 HRESULT GraphicsManager::createZBuffer(UINT width, UINT height, UINT sampleCount)
 {
 	HRESULT result = S_OK;
+
+	// Release previously present zbuffers
+	if (zBuffer) {
+		zBuffer->Release();
+		zBuffer = nullptr;
+	}
 
 	// Create Z-Buffer
 	D3D11_TEXTURE2D_DESC tex2dDesc;
@@ -182,7 +380,7 @@ HRESULT GraphicsManager::createZBuffer(UINT width, UINT height, UINT sampleCount
 
 	// Check if the creation was successful
 	if (FAILED(result))
-		throw result;
+		return result;
 
 	// Create the Z buffer
 	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
@@ -192,23 +390,96 @@ HRESULT GraphicsManager::createZBuffer(UINT width, UINT height, UINT sampleCount
 	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	device->CreateDepthStencilView(pZBufferTexture, &dsvDesc, &zBuffer);
 	pZBufferTexture->Release();
+
+	return result;
 }
 
-void GraphicsManager::renderFrame()
+HRESULT GraphicsManager::enableZBuffer()
 {
-	// Clear the back buffer - choose a colour you like
-	deviceContext->ClearRenderTargetView(backBufferRenderTargetView, DEFAULT_BACKGROUND_COLOR);
+	deviceContext->OMSetDepthStencilState(NULL, 1);
+	return S_OK;
+}
 
-	// Clear ZBuffer
-	deviceContext->ClearDepthStencilView(zBuffer, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0F, 0);
+HRESULT GraphicsManager::disableZBuffer()
+{
+	deviceContext->OMSetDepthStencilState(zBufferStateDisabled, 1);
+	return S_OK;
+}
 
-	// Call renderers to draw
+HRESULT GraphicsManager::renderSceneToTexture()
+{
+	// Set the render targets
+	deviceContext->OMSetRenderTargets(BUFFER_COUNT, deferredRenderTargetViews, zBuffer);
+
+	// Clear the render targets
+	float normalColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+
+	// Clear color buffer
+	deviceContext->ClearRenderTargetView(deferredRenderTargetViews[0], DEFAULT_BACKGROUND_COLOR);
+	
+	// Clear normal buffer
+	deviceContext->ClearRenderTargetView(deferredRenderTargetViews[1], normalColor);
+
+	// Clear the depth buffer
+	deviceContext->ClearDepthStencilView(zBuffer, D3D11_CLEAR_DEPTH, 1.0F, 0);
+
+	// Call renderers to draw to texture
 	for (std::set<Renderer*>::const_iterator iterator = renderers.begin(), end = renderers.end(); iterator != end; ++iterator) {
 		((Renderer*)*iterator)->draw();
 	}
 
+	// reset the render target view
+	deviceContext->OMSetRenderTargets(1, &backBufferRenderTargetView, zBuffer);
+
+	// Reset Shader resources
+	ID3D11ShaderResourceView *const pSRV[2] = { NULL, NULL };
+	deviceContext->PSSetShaderResources(0, 2, pSRV);
+
+	return S_OK;
+}
+
+void GraphicsManager::renderFrame()
+{
+	// Render Scene to separate Texture
+	renderSceneToTexture();
+
+	// Clear the back buffer
+	deviceContext->ClearRenderTargetView(backBufferRenderTargetView, DEFAULT_BACKGROUND_COLOR);
+
+	// Clear the depth buffer
+	deviceContext->ClearDepthStencilView(zBuffer, D3D11_CLEAR_DEPTH, 1.0F, 0);
+
+	// Disable ZBuffer for post-processing
+	disableZBuffer();
+
+	// Put the quad to render in the graphics pipeline
+	UINT stride = sizeof(Vertex);
+	UINT offset = 0;
+	ID3D11Buffer* pVB = renderQuad->getVertexBuffer();
+	GraphicsManager::instance()->getDeviceContext()->IASetVertexBuffers(0, 1, &pVB, &stride, &offset);
+	GraphicsManager::instance()->getDeviceContext()->IASetIndexBuffer(renderQuad->getIndexBuffer(), renderQuad->getIndexFormat(), 0);
+	GraphicsManager::instance()->getDeviceContext()->IASetPrimitiveTopology(renderQuad->getPrimitiveTopology());
+
+	// Post-processing: Render lighting
+	LightingManager::instance()->render();
+
+	// Render UI
+	// TODO: implement ui rendering!
+
+	// Re-enable zbuffer
+	enableZBuffer();
+
 	// Bring backbuffer to front
-	swapChain->Present(0, 0);
+	if (vsync)
+	{
+		// Lock to screen refresh rate.
+		swapChain->Present(1, 0);
+	}
+	else
+	{
+		// Present as fast as possible.
+		swapChain->Present(0, 0);
+	}
 }
 
 HRESULT GraphicsManager::resizeBuffers(UINT newWidth, UINT newHeight)
@@ -221,6 +492,14 @@ HRESULT GraphicsManager::resizeBuffers(UINT newWidth, UINT newHeight)
 	// Release all outstanding references to the swap chain's backbuffers.
 	if (backBufferRenderTargetView != nullptr)
 		backBufferRenderTargetView->Release();
+
+	// Release all outstanding references to the swap chain's deffered render targets
+	if (deferredRenderTargetViews != nullptr)
+		for (int i = 0; i<BUFFER_COUNT; i++)
+		{
+			if (deferredRenderTargetViews[i] != nullptr)
+				deferredRenderTargetViews[i]->Release();
+		}
 
 	// Delcare result variable
 	HRESULT hr = S_OK;
@@ -235,6 +514,10 @@ HRESULT GraphicsManager::resizeBuffers(UINT newWidth, UINT newHeight)
 	if (FAILED(hr))
 		return hr;
 
+	hr = setupDeferredShadingResources(newWidth, newHeight, 1); // TODO: sample size should not 1 be
+	if (FAILED(hr)) 
+		return hr;
+
 	hr = setupRenderTargetView();
 	if (FAILED(hr))
 		return hr;
@@ -243,6 +526,11 @@ HRESULT GraphicsManager::resizeBuffers(UINT newWidth, UINT newHeight)
 	if (FAILED(hr))
 		return hr;
 
+	hr = setupRenderQuad(newWidth, newHeight);
+	if (FAILED(hr))
+		return hr;
+
+	return S_OK;
 }
 
 void GraphicsManager::registerRenderer(Renderer * renderer)
@@ -263,6 +551,11 @@ ID3D11Device * GraphicsManager::getDevice()
 ID3D11DeviceContext * GraphicsManager::getDeviceContext()
 {
 	return deviceContext;
+}
+
+ID3D11ShaderResourceView * GraphicsManager::getDeferredShaderResourceView(int index)
+{
+	return deferredShaderResources[index];
 }
 
 bool GraphicsManager::isInitialized()

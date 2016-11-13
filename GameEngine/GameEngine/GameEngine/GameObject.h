@@ -1,10 +1,8 @@
 #pragma once
 
 #include <set>
+#include "ClassDef.h"
 #include "Transform.h"
-
-class Component;
-class Scene;
 
 class GameObject {
 

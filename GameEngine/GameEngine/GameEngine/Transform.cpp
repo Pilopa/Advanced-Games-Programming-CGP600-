@@ -14,9 +14,31 @@ void Transform::translate(DirectX::XMVECTOR vector)
 	localPosition->z += vector.m128_f32[2];
 }
 
+void Transform::rotate(Axis axis, float degree)
+{
+	switch (axis) {
+		case AXIS_X:
+			localRotation->pitch += degree;
+			break;
+		case AXIS_Y:
+			localRotation->yaw += degree;
+			break;
+		case AXIS_Z:
+			localRotation->roll += degree;
+			break;
+	}
+}
+
+void Transform::scale(DirectX::XMVECTOR factor)
+{
+	localScale->x += factor.m128_f32[0];
+	localScale->y += factor.m128_f32[1];
+	localScale->z += factor.m128_f32[2];
+}
+
 DirectX::XMVECTOR Transform::getDirectionalVector()
 {
-	return Transform::forward(); // TODO: Implement correctly
+	return getRotationMatrix().r[2];
 }
 
 DirectX::XMVECTOR Transform::getPositionVector()

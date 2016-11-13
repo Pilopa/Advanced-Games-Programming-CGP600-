@@ -27,6 +27,8 @@ class Camera : public Component {
 		
 		Camera(PROJECTION_TYPE projectionType, float fov_angle, float near_z, float far_z, float size);
 		DirectX::XMMATRIX getViewMatrix();
+		DirectX::XMMATRIX get2DProjectionMatrix();
 		DirectX::XMMATRIX getProjectionMatrix(float aspectRatio);
+		DirectX::XMMATRIX getProjectionMatrix(PROJECTION_TYPE projectionType, float aspectRatio);
 
 };

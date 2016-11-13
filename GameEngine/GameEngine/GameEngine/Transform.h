@@ -3,6 +3,12 @@
 #include <DirectXMath.h>
 #include "Component.h"
 
+enum Axis {
+	AXIS_X,
+	AXIS_Y,
+	AXIS_Z
+};
+
 struct Position {
 	float x = 0.0F, 
 		y = 0.0F, 
@@ -11,9 +17,15 @@ struct Position {
 
 // Euler Angles
 struct Rotation {
-	float roll = 0.0F,
-		pitch = 0.0F,
-		yaw = 0.0F;
+
+	// Rotation around z-Axis
+	float roll = 0.0F;
+
+	// Rotation around x-Axis
+	float pitch = 0.0F;
+
+	// Rotation around y-Axis
+	float yaw = 0.0F;
 };
 
 struct Scale {
@@ -32,10 +44,15 @@ class Transform : public Component {
 		Scale * localScale = new Scale();
 
 		void translate(DirectX::XMVECTOR vector);
+		void rotate(Axis axis, float degree);
+		void scale(DirectX::XMVECTOR factor);
+
 		DirectX::XMVECTOR getDirectionalVector();
+
 		DirectX::XMVECTOR getPositionVector();
 		DirectX::XMVECTOR getRotationVector();
 		DirectX::XMVECTOR getScaleVector();
+
 		DirectX::XMMATRIX getTranslationMatrix();
 		DirectX::XMMATRIX getRotationMatrix();
 		DirectX::XMMATRIX getScaleMatrix();

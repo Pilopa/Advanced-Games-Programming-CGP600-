@@ -1,8 +1,7 @@
 #pragma once
 
 #include "Renderer.h"
-#include "Mesh.h"
-#include "Material.h"
+#include "ClassDef.h"
 
 class MeshRenderer : public Renderer {
 

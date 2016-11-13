@@ -5,17 +5,13 @@
 
 #define VertexShaderLanguageVersion "vs_4_0"
 
-struct MatrixBuffer {
-	DirectX::XMMATRIX worldViewProjectionMatrix; // 64 bytes
-};
-
 class VertexShader : public Shader {
 
 	public:
 		ID3D11VertexShader* getD3DVertexShaderInstance();
 		ID3D11InputLayout* getVertexInputLayout();
 		
-		static VertexShader* loadFromFile(LPCWSTR path);
+		static VertexShader* loadFromFile(LPCWSTR path, D3D11_BUFFER_DESC* constant_buffer_desc = NULL);
 		static HRESULT CreateInputLayoutDescFromVertexShaderSignature(ID3DBlob* pShaderBlob, ID3D11Device* pD3DDevice, ID3D11InputLayout** pInputLayout);
 
 	private:

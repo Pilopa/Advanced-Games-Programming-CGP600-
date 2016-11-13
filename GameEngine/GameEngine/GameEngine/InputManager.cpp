@@ -134,6 +134,14 @@ KeyCode InputManager::convertVirtualKeyCode(long virtualKeyCode)
 			return KEY_Y;
 		case 0x5A:
 			return KEY_Z;
+		case VK_UP:
+			return KEY_ARROW_UP;
+		case VK_DOWN:
+			return KEY_ARROW_DOWN;
+		case VK_LEFT:
+			return KEY_ARROW_LEFT;
+		case VK_RIGHT:
+			return KEY_ARROW_RIGHT;
 		default:
 			return KEY_UNDEFINED;
 	}
@@ -214,6 +222,14 @@ long InputManager::convertKeyCode(KeyCode keyCode)
 		return 0x59;
 	case KEY_Z:
 		return 0x5A;
+	case KEY_ARROW_UP:
+		return VK_UP;
+	case KEY_ARROW_DOWN:
+		return VK_DOWN;
+	case KEY_ARROW_LEFT :
+		return VK_LEFT;
+	case KEY_ARROW_RIGHT :
+		return VK_RIGHT;
 	default:
 		return 0;
 	}

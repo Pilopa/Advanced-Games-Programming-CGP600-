@@ -6,6 +6,7 @@
 #include "GraphicsManager.h"
 #include "InputManager.h"
 #include "Debug.h"
+#include "Scene.h"
 
 GameManager::GameManager()
 {

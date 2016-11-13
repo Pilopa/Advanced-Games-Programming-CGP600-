@@ -4,6 +4,8 @@
 #include <D3DCompiler.h>
 #include <string>
 #include <vector>
+#include <d3d11.h>
+#include <fstream>
 #include "Vertex.h"
 #include "GraphicsManager.h"
 #include "VertexShader.h"
@@ -19,7 +21,7 @@ ID3D11InputLayout * VertexShader::getVertexInputLayout()
 	return vertexInputLayout;
 }
 
-VertexShader* VertexShader::loadFromFile(LPCWSTR path)
+VertexShader* VertexShader::loadFromFile(LPCWSTR path, D3D11_BUFFER_DESC* constant_buffer_desc)
 {
 	// Declare temporary variables
 	HRESULT result = S_OK;
@@ -29,7 +31,7 @@ VertexShader* VertexShader::loadFromFile(LPCWSTR path)
 	VertexShader* vertexShader = new VertexShader();
 
 	// Load the vertex shader
-	result = D3DCompileFromFile(path, 0, 0, "main", VertexShaderLanguageVersion, 0, 0, &shaderResource, &error);
+	result = D3DCompileFromFile(path, 0, 0, "main", VertexShaderLanguageVersion, D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG, 0, &shaderResource, &error);
 
 	if (error != 0) { // Check for shader compilation error
 		LogError((char*)error->GetBufferPointer());
@@ -62,19 +64,20 @@ VertexShader* VertexShader::loadFromFile(LPCWSTR path)
 		LogError("VertexShader input layout is null!");
 
 	// Create constant buffer
-	D3D11_BUFFER_DESC constant_buffer_desc;
-	ZeroMemory(&constant_buffer_desc, sizeof(constant_buffer_desc));
 
-	constant_buffer_desc.Usage = D3D11_USAGE_DEFAULT; // Can use UpdateSubresource() to update
-	constant_buffer_desc.ByteWidth = sizeof(MatrixBuffer); // Must be multiple of 16, calculate from CB struct
-	constant_buffer_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER; // Use as constant buffer
+	if (constant_buffer_desc != NULL) {
 
-	result = GraphicsManager::instance()->getDevice()->CreateBuffer(&constant_buffer_desc, NULL, &vertexShader->constantBuffer);
+		result = GraphicsManager::instance()->getDevice()->CreateBuffer(constant_buffer_desc, NULL, &vertexShader->constantBuffer);
 
-	if (FAILED(result)) {
-		LogError("VertexShader constant buffer could not be generated!");
-		return nullptr;
+		if (FAILED(result)) {
+			LogError("VertexShader constant buffer could not be generated!");
+			return nullptr;
+		}
+
 	}
+
+	// Release shader resource
+	shaderResource->Release();
 
 	return vertexShader;
 }

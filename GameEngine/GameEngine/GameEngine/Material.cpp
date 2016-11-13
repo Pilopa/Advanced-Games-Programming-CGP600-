@@ -1,18 +1,17 @@
 #include "Material.h"
 
-Material::Material(VertexShader * vertexShader, PixelShader * pixelShader, Texture * texture)
+Material::Material(ShaderClass * shaderClass, Texture * texture)
 {
-	this->vertexShader = vertexShader;
-	this->pixelShader = pixelShader;
+	this->shaderClass = shaderClass;
 	this->texture = texture;
 }
 
-VertexShader * Material::getVertexShader()
+ShaderClass * Material::getShaderClass()
 {
-	return vertexShader;
+	return shaderClass;
 }
 
-PixelShader * Material::getPixelShader()
+Texture * Material::getTexture()
 {
-	return pixelShader;
+	return texture;
 }

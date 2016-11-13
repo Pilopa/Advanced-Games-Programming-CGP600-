@@ -1,12 +1,13 @@
 #pragma once
 
 #include <set>
-#include "Light.h"
+#include "ClassDef.h"
 
 class LightingManager {
 
 	public:
 
+		void render();
 		void registerLight(Light* light);
 		void deregisterLight(Light* light);
 

@@ -3,15 +3,12 @@
 #include <d3d11.h>
 #include <DirectXMath.h>
 
-struct VERTEX
+struct Vertex
 {
 	DirectX::XMFLOAT3 Pos;
 	DirectX::XMFLOAT2 TexCoord;
 	DirectX::XMFLOAT3 Normal;
 };
 
-const D3D11_INPUT_ELEMENT_DESC VERTEX_INPUT_DESCRIPTION[] = {
-	{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-	{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-	{"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
-};
+struct xyz { float x, y, z; };	//used for vertices and normals during file parse
+struct xy { float x, y; };		//used for texture coordinates during file parse

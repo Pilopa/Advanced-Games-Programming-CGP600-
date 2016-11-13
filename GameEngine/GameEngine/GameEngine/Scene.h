@@ -1,8 +1,7 @@
 #pragma once
 
 #include <set>
-#include "GameObject.h"
-#include "Camera.h"
+#include "ClassDef.h"
 
 class Scene {
 

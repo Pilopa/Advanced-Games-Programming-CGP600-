@@ -16,17 +16,21 @@
 #include "Material.h"
 #include "MeshRenderer.h"
 #include "FreeFlightCameraScript.h"
+#include "DeferredShaderClass.h"
+#include "DirectionalLight.h"
+#include "Texture.h"
+#include "FileManager.h"
 
 // Defines a triangle of vertices, with each vertex having a distinct color
-const std::vector<VERTEX> testCubeVertices =
+const std::vector<Vertex> testCubeVertices =
 {
 	// back face
-	{ DirectX::XMFLOAT3(-1.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) },
-	{ DirectX::XMFLOAT3(-1.0f, -1.0f, 1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) },
-	{ DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) },
-	{ DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) },
-	{ DirectX::XMFLOAT3(-1.0f, -1.0f, 1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) },
-	{ DirectX::XMFLOAT3(1.0f, -1.0f, 1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) },
+	{ DirectX::XMFLOAT3(-1.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, -1.0F) },
+	{ DirectX::XMFLOAT3(-1.0f, -1.0f, 1.0f), DirectX::XMFLOAT2(1.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, -1.0F) },
+	{ DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(0.0F, 1.0F), DirectX::XMFLOAT3(0.0F, 0.0F, -1.0F) },
+	{ DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(0.0F, 1.0F), DirectX::XMFLOAT3(0.0F, 0.0F, -1.0F) },
+	{ DirectX::XMFLOAT3(-1.0f, -1.0f, 1.0f), DirectX::XMFLOAT2(1.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, -1.0F) },
+	{ DirectX::XMFLOAT3(1.0f, -1.0f, 1.0f), DirectX::XMFLOAT2(1.0F, 1.0F), DirectX::XMFLOAT3(0.0F, 0.0F, -1.0F) },
 
 	// front face
 	{ DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) },
@@ -88,8 +92,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		ApplicationManager::initialize(new ApplicationManager("TinyTanks", CS_HREDRAW | CS_VREDRAW, { 0, 0, 640, 480 }, hInstance, nCmdShow));
 
 		// Load Shaders
-		VertexShader* vs = VertexShader::loadFromFile(L"VertexShader.hlsl");
-		PixelShader* ps = PixelShader::loadFromFile(L"PixelShader.hlsl");
+		DeferredShaderClass deferredShaderClass = DeferredShaderClass();
 
 		// Build Test Scene
 		Scene scene = Scene();
@@ -98,6 +101,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		mainCameraObject.getTransform()->localPosition->x = 0.0F;
 		mainCameraObject.getTransform()->localPosition->y = 0.0F;
 		mainCameraObject.getTransform()->localPosition->z = -5.0F;
+
+		float sunColor[4] = { 1.0F, 0.0F, 0.0F, 1.0F };
+		DirectionalLight directionalLight = DirectionalLight(sunColor, 1.0F);
+		mainCameraObject.addComponent(&directionalLight);
 
 		Camera mainCamera = Camera(PERSPECTIVE, 70.0F, 1.0F, 100.0F, 0.0F);
 		mainCameraObject.addComponent(&mainCamera);
@@ -108,20 +115,47 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		GameObject cube = GameObject();
 		cube.getTransform()->localPosition->x = 0.0F;
 		cube.getTransform()->localPosition->y = 0.0F;
-		cube.getTransform()->localPosition->z = -1.0F;
-		cube.getTransform()->localRotation->pitch = 45.0F;
-		cube.getTransform()->localRotation->yaw = 45.0F;
-		Mesh cubeMesh = Mesh(testCubeVertices, testCubeIndices);
-		Material cubeMaterial = Material(vs, ps, nullptr);
-		MeshRenderer cubeRenderer = MeshRenderer(&cubeMesh, &cubeMaterial);
+		cube.getTransform()->localPosition->z = 1.0F;
+		Mesh* cubeMesh = FileManager::loadObjMesh(L"FinalBaseMesh.obj"); //Mesh(testCubeVertices, testCubeIndices);
+		Texture cubeTexture = Texture(L"cubeTexture.bmp");
+		Material cubeMaterial = Material(&deferredShaderClass, &cubeTexture);
+		MeshRenderer cubeRenderer = MeshRenderer(cubeMesh, &cubeMaterial);
 		cube.addComponent(&cubeRenderer);
+
+		GameObject cube2 = GameObject();
+		cube2.getTransform()->localPosition->x = -5.0F;
+		cube2.getTransform()->localPosition->y = 0.0F;
+		cube2.getTransform()->localPosition->z = -1.0F;
+		cube2.getTransform()->localRotation->yaw = 45.0F;
+		MeshRenderer cube2Renderer = MeshRenderer(cubeMesh, &cubeMaterial);
+		cube2.addComponent(&cube2Renderer);
 
 		scene.setActiveCamera(&mainCamera);
 		scene.addRootObject(&mainCameraObject);
 		scene.addRootObject(&cube);
+		scene.addRootObject(&cube2);
 
 		// Assign scene to game
 		GameManager::instance()->setScene(&scene);
+
+		// Set up checks for memory leaks.
+		// Game Coding Complete reference - Chapter 21, page 834
+		//
+		int tmpDbgFlag = _CrtSetDbgFlag(_CRTDBG_REPORT_FLAG);
+
+		// set this flag to keep memory blocks around
+		// tmpDbgFlag |= _CRTDBG_DELAY_FREE_MEM_DF;        // this flag will cause intermittent pauses in your game and potientially cause it to run out of memory!
+
+		// perform memory check for each alloc/dealloc
+		tmpDbgFlag |= _CRTDBG_CHECK_ALWAYS_DF;     // remember this is VERY VERY SLOW!
+
+												   //_CRTDBG_LEAK_CHECK_DF is used at program initialization to force a 
+												   //   leak check just before program exit. This is important because
+												   //   some classes may dynamically allocate memory in globally constructed
+												   //   objects.
+		tmpDbgFlag |= _CRTDBG_LEAK_CHECK_DF;
+
+		_CrtSetDbgFlag(tmpDbgFlag);
 
 		// Start Application Loop
 		return ApplicationManager::instance()->executeMessageLoop();
