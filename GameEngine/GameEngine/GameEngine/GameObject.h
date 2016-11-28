@@ -3,6 +3,7 @@
 #include <set>
 #include "ClassDef.h"
 #include "Transform.h"
+#include "Utility.h"
 
 class GameObject {
 
@@ -11,6 +12,7 @@ class GameObject {
 		GameObject();
 		void update();
 		void awake();
+		void shutdown();
 
 		Transform* getTransform();
 		GameObject* getParent();
@@ -18,6 +20,18 @@ class GameObject {
 		void addComponent(Component* component);
 		Scene* getScene();
 		void setScene(Scene* scene);
+
+		template<typename T>
+		T* getComponent()
+		{
+			//  Search components for one of given type
+			for (std::set<Component*>::const_iterator iterator = components.begin(), end = components.end(); iterator != end; ++iterator) {
+				if (instanceof<T, Component>((Component*)*iterator))
+					return (T*)*iterator;
+			}
+
+			return nullptr;
+		}
 
 	private:
 

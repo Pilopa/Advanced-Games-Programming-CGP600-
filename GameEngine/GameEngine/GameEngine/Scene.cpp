@@ -2,11 +2,20 @@
 
 #include "Scene.h"
 #include "GameObject.h"
+#include "Debug.h"
 
 void Scene::awake()
 {
 	for (std::set<GameObject*>::const_iterator iterator = rootGameObjects.begin(), end = rootGameObjects.end(); iterator != end; ++iterator) {
 		((GameObject*)*iterator)->awake();
+	}
+}
+
+void Scene::shutdown()
+{
+	LogInfo(std::to_string(rootGameObjects.size()).c_str());
+	for (std::set<GameObject*>::const_iterator iterator = rootGameObjects.begin(), end = rootGameObjects.end(); iterator != end; ++iterator) {
+		((GameObject*)*iterator)->shutdown();
 	}
 }
 
@@ -32,3 +41,14 @@ Camera * Scene::getActiveCamera()
 {
 	return activeCamera;
 }
+
+void Scene::setAmbientLight(AmbientLight * ambientLight)
+{
+	this->ambientLight = ambientLight;
+}
+
+AmbientLight * Scene::getAmbientLight()
+{
+	return ambientLight;
+}
+

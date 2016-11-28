@@ -12,16 +12,12 @@ class DirectionalLightShaderClass : public ShaderClass {
 
 	private:
 
-		struct MatrixBuffer {
-			DirectX::XMMATRIX worldMatrix; // 64 bytes
-			DirectX::XMMATRIX viewMatrix; // 64 bytes
-			DirectX::XMMATRIX projectionMatrix; // 64 bytes
-		};
-
 		struct LightBuffer
 		{
-			DirectX::XMVECTOR lightDirection;
-			float padding;
-		};
+			DirectX::XMFLOAT4 lightColor; // 4 * 4 bytes = 16 bytes
+			DirectX::XMVECTOR lightDirection; // 4 * 4 bytes = 16 bytes
+			DirectX::XMVECTOR viewDirection; // 4 * 4 bytes = 16 bytes
+			float lightIntensity; // 4 bytes
+		}; // = 48 bytes
 
 };

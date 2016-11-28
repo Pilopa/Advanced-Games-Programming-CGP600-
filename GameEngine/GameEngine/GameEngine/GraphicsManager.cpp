@@ -9,7 +9,7 @@
 #include "Vertex.h"
 #include "Debug.h"
 
-const float GraphicsManager::DEFAULT_BACKGROUND_COLOR[] = { 1.0F, 1.0F, 1.0F, 1.0F };
+const float GraphicsManager::DEFAULT_BACKGROUND_COLOR[] = { 0.0F, 0.0F, 1.0F, 1.0F };
 
 GraphicsManager* GraphicsManager::s_instance = nullptr;
 bool GraphicsManager::initialized = false;
@@ -146,6 +146,22 @@ GraphicsManager::GraphicsManager()
 
 	// Now set the rasterizer state.
 	deviceContext->RSSetState(rasterState);
+
+	// Setup blend state for additive lighting calculations
+	D3D11_BLEND_DESC1 BlendState;
+	ZeroMemory(&BlendState, sizeof(D3D11_BLEND_DESC1));
+	BlendState.RenderTarget[0].BlendEnable = TRUE;
+	BlendState.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	BlendState.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+	BlendState.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+	BlendState.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	BlendState.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	BlendState.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+	BlendState.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	device->QueryInterface(__uuidof(ID3D11Device1), (void **) &pDevice);
+	pDevice->CreateBlendState1(&BlendState, &additiveBlendState);
+
+	// Setup the rest
 
 	if (FAILED(setupBackbuffer(width, height, sd.SampleDesc.Count)))
 		throw GraphicsManagerCreationException();
@@ -456,9 +472,9 @@ void GraphicsManager::renderFrame()
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
 	ID3D11Buffer* pVB = renderQuad->getVertexBuffer();
-	GraphicsManager::instance()->getDeviceContext()->IASetVertexBuffers(0, 1, &pVB, &stride, &offset);
-	GraphicsManager::instance()->getDeviceContext()->IASetIndexBuffer(renderQuad->getIndexBuffer(), renderQuad->getIndexFormat(), 0);
-	GraphicsManager::instance()->getDeviceContext()->IASetPrimitiveTopology(renderQuad->getPrimitiveTopology());
+	deviceContext->IASetVertexBuffers(0, 1, &pVB, &stride, &offset);
+	deviceContext->IASetIndexBuffer(renderQuad->getIndexBuffer(), renderQuad->getIndexFormat(), 0);
+	deviceContext->IASetPrimitiveTopology(renderQuad->getPrimitiveTopology());
 
 	// Post-processing: Render lighting
 	LightingManager::instance()->render();
@@ -556,6 +572,26 @@ ID3D11DeviceContext * GraphicsManager::getDeviceContext()
 ID3D11ShaderResourceView * GraphicsManager::getDeferredShaderResourceView(int index)
 {
 	return deferredShaderResources[index];
+}
+
+ID3D11BlendState1 * GraphicsManager::getAdditiveBlendState()
+{
+	return additiveBlendState;
+}
+
+void GraphicsManager::shutdown()
+{
+	for (int i = 0; i<BUFFER_COUNT; i++)
+		if (deferredRenderTargetViews[i])
+			deferredRenderTargetViews[i]->Release();
+
+	if (rasterState) rasterState->Release();
+	if (zBufferStateDisabled) zBufferStateDisabled->Release();
+	if (zBuffer) zBuffer->Release();
+	if (backBufferRenderTargetView) backBufferRenderTargetView->Release();
+	if (swapChain) swapChain->Release();
+	if (deviceContext) deviceContext->Release();
+	if (device) device->Release();
 }
 
 bool GraphicsManager::isInitialized()

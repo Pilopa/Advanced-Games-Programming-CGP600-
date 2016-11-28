@@ -14,8 +14,10 @@ SamplerState SampleTypePoint : register(s0);
 //////////////////////
 cbuffer LightBuffer
 {
-	float3 lightDirection;
-	float padding;
+	float4 lightColor;
+	float4 lightDirection;
+	float4 viewDirection;
+	float lightIntensity;
 };
 
 //////////////
@@ -32,31 +34,47 @@ struct PixelInputType
 ////////////////////////////////////////////////////////////////////////////////
 float4 main(PixelInputType input) : SV_TARGET
 {
-	float4 colors;
-	float4 normals;
+	float4 input_color;
+	float4 input_normal;
+	float3 reflection;
+	float4 specular_color = float4(1.0F, 1.0F, 1.0F, 1.0F);
+	float4 specular = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	float4 diffuse;
+	float3 lightDir;
+	float calculatedLightIntensity;
+	float4 outputColor;
 
 	// Sample the colors from the color render texture using the point sampler at this texture coordinate location.
-	colors = colorTexture.Sample(SampleTypePoint, input.tex);
+	input_color = colorTexture.Sample(SampleTypePoint, input.tex);
 
 	// Sample the normals from the normal render texture using the point sampler at this texture coordinate location.
-	normals = normalTexture.Sample(SampleTypePoint, input.tex);
-
-	// Skip lighting calculations if pixel is unlit
-	if (normals.r == 0.0f && normals.g == 0.0f &&
-		normals.b == 0.0f && normals.a == 1.0f) return colors;
-
-	float3 lightDir;
-	float lightIntensity;
-	float4 outputColor;
+	input_normal = normalTexture.Sample(SampleTypePoint, input.tex);
 
 	// Invert the light direction for calculations.
 	lightDir = -lightDirection;
 
 	// Calculate the amount of light on this pixel.
-	lightIntensity = saturate(dot(normals.xyz, lightDir));
+	calculatedLightIntensity = saturate(dot(input_normal.xyz, lightDir));
 
-	// Determine the final amount of diffuse color based on the color of the pixel combined with the light intensity.
-	outputColor = saturate(colors * lightIntensity);
+	// Set default output color
+	outputColor = input_color;
+
+	if (!(input_normal.r == 0.0f && input_normal.g == 0.0f
+		&& input_normal.b == 0.0f && input_normal.a == 1.0f)) {
+
+		// Calculate final diffuse color
+		diffuse = saturate(lightIntensity * calculatedLightIntensity * lightColor * input_color);
+
+		// Calculate reflection
+		reflection = reflect(lightDir, input_normal.xyz);
+
+		// Calculate specular
+		specular = saturate(specular_color * pow(max(dot(reflection, viewDirection), 0.0F), 5.0f) * length(input_color));
+
+		// Add specular
+		outputColor = saturate(diffuse + specular);
+		
+	}
 
 	return outputColor;
 

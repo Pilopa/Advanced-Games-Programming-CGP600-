@@ -14,6 +14,11 @@ void Light::awake()
 	LightingManager::instance()->registerLight(this);
 }
 
+void Light::shutdown()
+{
+	LightingManager::instance()->deregisterLight(this);
+}
+
 Light::Light(float color[4], float intensity)
 {
 	this->color[0] = color[0];

@@ -2,11 +2,12 @@
 
 #include <set>
 #include <d3d11.h>
+#include <d3d11_1.h>
 #include <DirectXMath.h>
 #include "ClassDef.h"
 
 #define DEFAULT_HEIGHT_VALUE 8
-#define BUFFER_COUNT 2 // First: color, Second: normals
+#define BUFFER_COUNT 2 // [color, normals]
 
 class GraphicsManager {
 
@@ -18,6 +19,8 @@ class GraphicsManager {
 		ID3D11Device* getDevice();
 		ID3D11DeviceContext* getDeviceContext();
 		ID3D11ShaderResourceView* getDeferredShaderResourceView(int index);
+		ID3D11BlendState1* getAdditiveBlendState();
+		void shutdown();
 
 		static bool isInitialized();
 		static GraphicsManager* instance();
@@ -43,6 +46,7 @@ class GraphicsManager {
 		Mesh* renderQuad = nullptr;
 		ID3D11RenderTargetView* backBufferRenderTargetView = nullptr;
 		ID3D11Device* device = nullptr;
+		ID3D11Device1* pDevice = nullptr;
 		ID3D11DeviceContext* deviceContext = nullptr;
 		D3D_DRIVER_TYPE driverType;
 		D3D_FEATURE_LEVEL featureLevel;
@@ -50,6 +54,7 @@ class GraphicsManager {
 		ID3D11DepthStencilView* zBuffer = nullptr;
 		ID3D11DepthStencilState* zBufferStateDisabled = nullptr;
 		ID3D11RasterizerState* rasterState = nullptr;
+		ID3D11BlendState1* additiveBlendState;
 		std::set<Renderer*> renderers;
 		bool vsync = false;
 

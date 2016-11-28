@@ -8,6 +8,7 @@ class Light : public Component {
 	public:
 		void update(); // Overrides Component::update
 		void awake(); // Overrides Component::awake
+		void shutdown(); // Overrides Component::shutdown
 		virtual void render() = 0;
 
 		Light(float color[4], float intensity);

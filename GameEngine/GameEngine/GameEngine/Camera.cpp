@@ -59,3 +59,8 @@ void Camera::awake()
 {
 	// Do nothing
 }
+
+void Camera::shutdown()
+{
+	// Do nothing
+}

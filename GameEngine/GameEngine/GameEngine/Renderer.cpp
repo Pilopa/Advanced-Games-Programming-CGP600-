@@ -7,3 +7,8 @@ void Renderer::awake()
 {
 	GraphicsManager::instance()->registerRenderer(this);
 }
+
+void Renderer::shutdown()
+{
+	GraphicsManager::instance()->deregisterRenderer(this);
+}

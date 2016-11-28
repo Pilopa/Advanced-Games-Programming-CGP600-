@@ -4,6 +4,7 @@
 
 GameObject::GameObject()
 {
+	transform.setGameObject(this);
 	components.insert(&transform);
 }
 
@@ -30,6 +31,19 @@ void GameObject::awake()
 	// Awake children
 	for (std::set<GameObject*>::const_iterator iterator = children.begin(), end = children.end(); iterator != end; ++iterator) {
 		((GameObject*)*iterator)->awake();
+	}
+}
+
+void GameObject::shutdown()
+{
+	// Shutdown components
+	for (std::set<Component*>::const_iterator iterator = components.begin(), end = components.end(); iterator != end; ++iterator) {
+		((Component*)*iterator)->shutdown();
+	}
+
+	// Shutdown children
+	for (std::set<GameObject*>::const_iterator iterator = children.begin(), end = children.end(); iterator != end; ++iterator) {
+		((GameObject*)*iterator)->shutdown();
 	}
 }
 

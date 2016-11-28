@@ -65,7 +65,9 @@ VertexShader* VertexShader::loadFromFile(LPCWSTR path, D3D11_BUFFER_DESC* consta
 
 	// Create constant buffer
 
-	if (constant_buffer_desc != NULL) {
+	if (constant_buffer_desc != nullptr
+		&& constant_buffer_desc != NULL
+		&& constant_buffer_desc != 0) {
 
 		result = GraphicsManager::instance()->getDevice()->CreateBuffer(constant_buffer_desc, NULL, &vertexShader->constantBuffer);
 

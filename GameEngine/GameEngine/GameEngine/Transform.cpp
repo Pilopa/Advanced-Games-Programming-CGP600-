@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Transform.h"
+#include "GameObject.h"
 
 Transform::Transform()
 {
@@ -73,7 +74,12 @@ DirectX::XMMATRIX Transform::getScaleMatrix()
 
 DirectX::XMMATRIX Transform::getWorldMatrix()
 {
-	return getScaleMatrix() * getRotationMatrix() * getTranslationMatrix();
+	DirectX::XMMATRIX local = getScaleMatrix() * getRotationMatrix() * getTranslationMatrix();
+	GameObject* parent = nullptr;
+	if ((parent = this->getGameObject()->getParent()) != nullptr) {
+		local *= parent->getTransform()->getWorldMatrix();
+	}
+	return local;
 }
 
 void Transform::update()
@@ -82,6 +88,11 @@ void Transform::update()
 }
 
 void Transform::awake()
+{
+	// Do nothing
+}
+
+void Transform::shutdown()
 {
 	// Do nothing
 }

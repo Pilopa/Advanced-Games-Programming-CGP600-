@@ -20,5 +20,6 @@ class LightingManager {
 	private:
 
 		std::set<Light*> lights;
+
 		static LightingManager* s_instance;
 };

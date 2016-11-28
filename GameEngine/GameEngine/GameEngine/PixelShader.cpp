@@ -47,7 +47,7 @@ PixelShader* PixelShader::loadFromFile(LPCWSTR path, D3D11_BUFFER_DESC* constant
 
 	// Create constant buffer
 
-	if (constant_buffer_desc != NULL) {
+	if (constant_buffer_desc != nullptr) {
 
 		result = GraphicsManager::instance()->getDevice()->CreateBuffer(constant_buffer_desc, NULL, &pixelShader->constantBuffer);
 

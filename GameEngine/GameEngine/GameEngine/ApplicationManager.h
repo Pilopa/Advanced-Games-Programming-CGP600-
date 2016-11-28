@@ -14,6 +14,7 @@ class ApplicationManager {
 		//
 		int executeMessageLoop();
 		Window* getWindow();
+		void shutdown();
 
 		static ApplicationManager* instance() {
 			return s_instance;

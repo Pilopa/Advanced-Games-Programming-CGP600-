@@ -17,6 +17,7 @@ class GameManager {
 		void setScene(Scene* scene);
 
 		Scene* getScene();
+		void shutdown();
 
 		static GameManager* instance();
 

@@ -62,3 +62,16 @@ Scene * GameManager::getScene()
 {
 	return scene;
 }
+
+void GameManager::shutdown()
+{
+	if (GraphicsManager::instance()) {
+		if (getScene()) {
+			getScene()->shutdown();
+		}
+		GraphicsManager::instance()->shutdown();
+		s_instance = nullptr;
+		delete this;
+	}
+
+}

@@ -4,6 +4,9 @@
 
 class AmbientLight : public Light {
 
-	virtual void render(); // Overrides Light::render
+	public:
+		virtual void render(); // Overrides Light::render
+
+		AmbientLight(float color[4], float intensity);
 
 };

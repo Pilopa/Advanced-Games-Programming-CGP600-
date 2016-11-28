@@ -3,10 +3,6 @@
 #include "Resource.h"
 #include "ClassDef.h"
 
-struct MATERIAL_CONSTANT_BUFFER {
-
-};
-
 class Material : public Resource {
 
 	public:

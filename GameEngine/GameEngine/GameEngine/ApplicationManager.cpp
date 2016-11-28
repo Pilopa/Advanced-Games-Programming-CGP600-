@@ -93,3 +93,12 @@ Window * ApplicationManager::getWindow()
 {
 	return window;
 }
+
+void ApplicationManager::shutdown()
+{
+	if (GameManager::instance()) {
+		GameManager::instance()->shutdown();
+		s_instance = nullptr;
+		delete this;
+	}
+}

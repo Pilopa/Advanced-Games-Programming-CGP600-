@@ -105,6 +105,12 @@
     <ClCompile Include="FileManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AmbientLight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AmbientLightShaderClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ApplicationManager.h">
@@ -221,18 +227,27 @@
     <ClInclude Include="WaveFrontReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Utility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AmbientLightShaderClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="DeferredDirectionalLightPixelShader.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="DeferredDirectionalLightVertexShader.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
     <FxCompile Include="StandardDeferredPixelShader.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
     <FxCompile Include="StandardDeferredVertexShader.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="Deferred2DVertexShader.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="DeferredAmbientLightPixelShader.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
   </ItemGroup>
@@ -246,6 +261,12 @@
       <Filter>Resource Files</Filter>
     </Object>
     <Object Include="FinalBaseMesh.obj">
+      <Filter>Resource Files</Filter>
+    </Object>
+    <Object Include="candlestick.obj">
+      <Filter>Resource Files</Filter>
+    </Object>
+    <Object Include="sphere.obj">
       <Filter>Resource Files</Filter>
     </Object>
   </ItemGroup>

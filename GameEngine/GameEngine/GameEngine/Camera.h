@@ -22,8 +22,9 @@ class Camera : public Component {
 
 	public:
 
-		virtual void update(); // Overrides Component::update
-		virtual void awake(); // Overrides Component::update
+		void update(); // Overrides Component::update
+		void awake(); // Overrides Component::awake
+		void shutdown(); // Overrides Component::shutdown
 		
 		Camera(PROJECTION_TYPE projectionType, float fov_angle, float near_z, float far_z, float size);
 		DirectX::XMMATRIX getViewMatrix();

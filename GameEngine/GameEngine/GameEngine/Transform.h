@@ -60,6 +60,7 @@ class Transform : public Component {
 
 		void update(); // Overrides Component::update
 		void awake(); // Overrides Component::awake
+		void shutdown(); // Overrides Component::shutdown
 
 		// Returns the world's directional vector
 		static DirectX::XMVECTOR forward();

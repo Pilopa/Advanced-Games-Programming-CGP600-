@@ -9,14 +9,18 @@ class Scene {
 
 		void update();
 		void awake();
+		void shutdown();
 
 		void addRootObject(GameObject* object);
 		void setActiveCamera(Camera* camera);
 		Camera* getActiveCamera();
+		void setAmbientLight(AmbientLight* ambientLight);
+		AmbientLight* getAmbientLight();
 
 	private:
 
 		std::set<GameObject*> rootGameObjects;
 		Camera* activeCamera = nullptr;
+		AmbientLight* ambientLight = nullptr;
 
 };

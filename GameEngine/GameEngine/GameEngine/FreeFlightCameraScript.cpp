@@ -69,4 +69,10 @@ void FreeFlightCameraScript::update()
 
 void FreeFlightCameraScript::awake()
 {
+	// Do nothing
+}
+
+void FreeFlightCameraScript::shutdown()
+{
+	// Do nothing
 }

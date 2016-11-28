@@ -10,7 +10,7 @@ class PixelShader : public Shader {
 		ID3D11PixelShader* getD3DPixelShaderInstance();
 		ID3D11SamplerState* getSamplerState();
 
-		static PixelShader* loadFromFile(LPCWSTR path, D3D11_BUFFER_DESC* constant_buffer_desc = NULL);
+		static PixelShader* loadFromFile(LPCWSTR path, D3D11_BUFFER_DESC* constant_buffer_desc = nullptr);
 
 	private:
 		ID3D11PixelShader* d3DPixelShaderInstance = nullptr;

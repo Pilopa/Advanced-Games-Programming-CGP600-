@@ -10,6 +10,7 @@ class Component {
 
 		virtual void update() = 0;
 		virtual void awake() = 0;
+		virtual void shutdown() = 0;
 		
 	private:
 		GameObject* gameObject = nullptr;
