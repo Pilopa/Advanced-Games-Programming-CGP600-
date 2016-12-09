@@ -26,7 +26,7 @@ class GameManager {
 		// Time elapsed since last frame in milliseconds
 		double deltaTime = 0.0;
 		long long timer = 0;
-		Scene* scene = NULL;
+		Scene* scene = nullptr;
 		
 		// Default Constructor
 		GameManager();

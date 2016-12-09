@@ -5,9 +5,13 @@
 #include "ApplicationManager.h"
 #include "LightingManager.h"
 #include "Renderer.h"
+#include "MeshRenderer.h"
 #include "Mesh.h"
 #include "Vertex.h"
 #include "Debug.h"
+#include "GameManager.h"
+#include "Scene.h"
+#include "GameObject.h"
 
 const float GraphicsManager::DEFAULT_BACKGROUND_COLOR[] = { 0.0F, 0.0F, 1.0F, 1.0F };
 
@@ -125,7 +129,7 @@ GraphicsManager::GraphicsManager()
 
 	deviceContext->OMSetDepthStencilState(NULL, 1);
 
-	// Setup the raster description which will determine how and what polygons will be drawn.
+	// Setup the raster description which will determine how and what polygons will be drawn by default.
 	D3D11_RASTERIZER_DESC rasterDesc;
 	ZeroMemory(&rasterDesc, sizeof(rasterDesc));
 	rasterDesc.AntialiasedLineEnable = false;
@@ -140,12 +144,30 @@ GraphicsManager::GraphicsManager()
 	rasterDesc.SlopeScaledDepthBias = 0.0f;
 
 	// Create the rasterizer state from the description we just filled out.
-	result = device->CreateRasterizerState(&rasterDesc, &rasterState);
+	result = device->CreateRasterizerState(&rasterDesc, &rasterStateDefault);
 	if (FAILED(result))
 		throw GraphicsManagerCreationException();
 
 	// Now set the rasterizer state.
-	deviceContext->RSSetState(rasterState);
+	deviceContext->RSSetState(rasterStateDefault);
+
+	// Setup raster state without backface culling
+	ZeroMemory(&rasterDesc, sizeof(rasterDesc));
+	rasterDesc.AntialiasedLineEnable = false;
+	rasterDesc.CullMode = D3D11_CULL_NONE;
+	rasterDesc.DepthBias = 0;
+	rasterDesc.DepthBiasClamp = 0.0f;
+	rasterDesc.DepthClipEnable = false;
+	rasterDesc.FillMode = D3D11_FILL_SOLID;
+	rasterDesc.FrontCounterClockwise = false;
+	rasterDesc.MultisampleEnable = false;
+	rasterDesc.ScissorEnable = false;
+	rasterDesc.SlopeScaledDepthBias = 0.0f;
+
+	// Create the rasterizer state from the description we just filled out.
+	result = device->CreateRasterizerState(&rasterDesc, &rasterStateNoBackfaceCulling);
+	if (FAILED(result))
+		throw GraphicsManagerCreationException();
 
 	// Setup blend state for additive lighting calculations
 	D3D11_BLEND_DESC1 BlendState;
@@ -249,7 +271,7 @@ HRESULT GraphicsManager::setupRenderQuad(UINT width, UINT height)
 		delete renderQuad;
 		renderQuad = nullptr;
 	}
-	int vertexCount = 6;
+	int vertexCount = RENDER_QUAD_VERTEX_COUNT;
 	std::vector<Vertex> vertices(vertexCount, Vertex());
 	std::vector<UINT> indices(vertexCount, 0);
 	int i;
@@ -428,16 +450,22 @@ HRESULT GraphicsManager::renderSceneToTexture()
 	deviceContext->OMSetRenderTargets(BUFFER_COUNT, deferredRenderTargetViews, zBuffer);
 
 	// Clear the render targets
-	float normalColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	float zeroValues[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 	// Clear color buffer
 	deviceContext->ClearRenderTargetView(deferredRenderTargetViews[0], DEFAULT_BACKGROUND_COLOR);
 	
 	// Clear normal buffer
-	deviceContext->ClearRenderTargetView(deferredRenderTargetViews[1], normalColor);
+	deviceContext->ClearRenderTargetView(deferredRenderTargetViews[1], zeroValues);
+
+	// Clear position buffer
+	deviceContext->ClearRenderTargetView(deferredRenderTargetViews[2], zeroValues);
 
 	// Clear the depth buffer
 	deviceContext->ClearDepthStencilView(zBuffer, D3D11_CLEAR_DEPTH, 1.0F, 0);
+
+	// Render Skysphere
+	renderSkybox();
 
 	// Call renderers to draw to texture
 	for (std::set<Renderer*>::const_iterator iterator = renderers.begin(), end = renderers.end(); iterator != end; ++iterator) {
@@ -448,14 +476,50 @@ HRESULT GraphicsManager::renderSceneToTexture()
 	deviceContext->OMSetRenderTargets(1, &backBufferRenderTargetView, zBuffer);
 
 	// Reset Shader resources
-	ID3D11ShaderResourceView *const pSRV[2] = { NULL, NULL };
-	deviceContext->PSSetShaderResources(0, 2, pSRV);
+	ID3D11ShaderResourceView* pSRVNull[BUFFER_COUNT];
+	for (int i = 0; i < BUFFER_COUNT; i++) {
+		pSRVNull[i] = NULL;
+	}
+	deviceContext->PSSetShaderResources(0, 2, pSRVNull);
 
+	return S_OK;
+}
+
+HRESULT GraphicsManager::renderSkybox()
+{
+	Scene* scene = GameManager::instance()->getScene();
+	Renderer* skybox = scene->getSkybox();
+
+	if (skybox != nullptr) {
+		disableZBuffer();
+		disableBackfaceCulling();
+
+		skybox->draw();
+
+		enableZBuffer();
+		enableBackfaceCulling();
+
+		return S_OK;
+	}
+	else return S_FALSE;
+	
+}
+
+HRESULT GraphicsManager::disableBackfaceCulling()
+{
+	deviceContext->RSSetState(rasterStateNoBackfaceCulling);
+	return S_OK;
+}
+
+HRESULT GraphicsManager::enableBackfaceCulling()
+{
+	deviceContext->RSSetState(rasterStateDefault);
 	return S_OK;
 }
 
 void GraphicsManager::renderFrame()
 {
+
 	// Render Scene to separate Texture
 	renderSceneToTexture();
 
@@ -585,7 +649,7 @@ void GraphicsManager::shutdown()
 		if (deferredRenderTargetViews[i])
 			deferredRenderTargetViews[i]->Release();
 
-	if (rasterState) rasterState->Release();
+	if (rasterStateDefault) rasterStateDefault->Release();
 	if (zBufferStateDisabled) zBufferStateDisabled->Release();
 	if (zBuffer) zBuffer->Release();
 	if (backBufferRenderTargetView) backBufferRenderTargetView->Release();

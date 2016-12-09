@@ -18,6 +18,7 @@ class DirectionalLightShaderClass : public ShaderClass {
 			DirectX::XMVECTOR lightDirection; // 4 * 4 bytes = 16 bytes
 			DirectX::XMVECTOR viewDirection; // 4 * 4 bytes = 16 bytes
 			float lightIntensity; // 4 bytes
+			float shininess; // 4 bytes
 		}; // = 48 bytes
 
 };

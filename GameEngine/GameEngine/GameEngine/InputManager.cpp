@@ -5,38 +5,47 @@
 
 InputManager* InputManager::s_instance = nullptr;
 
+void InputManager::keyPressed(KeyCode keyCode)
+{
+	keyBuffer.insert(keyCode);
+}
+
+void InputManager::keyReleased(KeyCode keyCode)
+{
+	keyBuffer.erase(keyCode);
+}
+
 void InputManager::reset()
 {
-	short result;
-
 	// Iterate through supported keyCodes
 	for (int keyCodeInt = KEY_A; keyCodeInt != LAST; keyCodeInt++) {
 		KeyCode keyCode = static_cast<KeyCode>(keyCodeInt);
-		result = GetAsyncKeyState(convertKeyCode(keyCode));
+		reset(keyCode);
+	}
+}
 
-		// Check if the key is pressed
-		// https://msdn.microsoft.com/en-us/library/windows/desktop/ms646293(v=vs.85).aspx
-		if (!!(result & 0x8000)) {
+void InputManager::reset(KeyCode keyCode)
+{
+	// Check if the key is pressed
+	// https://msdn.microsoft.com/en-us/library/windows/desktop/ms646293(v=vs.85).aspx
+	if (keyBuffer.count(keyCode)) {
 
-			// Check if key had already been pressed in the previous frame
-			if (!getKey(keyCode)) {
-				setKeyDown(keyCode, true);
-			}
-			else {
-				setKeyDown(keyCode, false);
-			}
-
-			setKey(keyCode, true);
-
+		// Check if key had already been pressed in the previous frame
+		if (!getKey(keyCode)) {
+			setKeyDown(keyCode, true);
 		}
 		else {
-
-			setKey(keyCode, false);
 			setKeyDown(keyCode, false);
-
 		}
+		setKey(keyCode, true);
+
 	}
-	
+	else {
+
+		setKey(keyCode, false);
+		setKeyDown(keyCode, false);
+
+	}
 }
 
 bool InputManager::getKeyDown(KeyCode key)

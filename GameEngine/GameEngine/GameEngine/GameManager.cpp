@@ -50,9 +50,13 @@ void GameManager::setScene(Scene * scene)
 	// Dont bother if the given scene is already the active one
 	if (this->scene != scene) {
 
+		// Perform shutdown call on old scene
+		if (this->scene)
+			this->scene->shutdown();
+
 		this->scene = scene;
 
-		// Perform awake call
+		// Perform awake call on new scene
 		if (this->scene)
 			this->scene->awake();
 	}

@@ -13,7 +13,7 @@ AmbientLight::AmbientLight(float color[4], float intensity) : Light(color, inten
 
 void AmbientLight::render()
 {
-	int indexCount = 6;
+	int indexCount = RENDER_QUAD_VERTEX_COUNT;
 
 	// Prepare Buffers depending on shader class implementation
 	((AmbientLightShaderClass*) getShaderClass())->prepare(this);

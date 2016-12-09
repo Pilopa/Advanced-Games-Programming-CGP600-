@@ -44,7 +44,7 @@ float4 main(PixelInputType input) : SV_TARGET
 	input_normal = normalTexture.Sample(SampleTypePoint, input.tex);
 
 	if (!(input_normal.r == 0.0f && input_normal.g == 0.0f
-		&& input_normal.b == 0.0f && input_normal.a == 1.0f)) {
+		&& input_normal.b == 0.0f && input_normal.a == 0.0f)) {
 
 		// Determine the final amount of diffuse color based on the color of the pixel combined with the light intensity.
 		outputColor = saturate(lightIntensity * colors * lightColor);

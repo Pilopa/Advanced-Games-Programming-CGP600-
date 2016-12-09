@@ -11,6 +11,7 @@
 #include "Material.h"
 #include "Mesh.h"
 #include "Texture.h"
+#include "Debug.h"
 
 void MeshRenderer::update()
 {
@@ -37,8 +38,9 @@ void MeshRenderer::draw()
 	GraphicsManager::instance()->getDeviceContext()->IASetVertexBuffers(0, 1, &pVB, &stride, &offset);
 	GraphicsManager::instance()->getDeviceContext()->IASetIndexBuffer(mesh->getIndexBuffer(), mesh->getIndexFormat(), 0);
 
-	// Prepare Shader buffers
-	material->getShaderClass()->prepare(getGameObject());
+	// Prepare Shader buffers if possible
+	if (getGameObject()) material->getShaderClass()->prepare(getGameObject());
+	else LogError("Component is not attached to a game object!");
 
 	// Setup texture for shader
 	ID3D11ShaderResourceView* pSRV = material->getTexture()->getTextureView();
@@ -55,4 +57,9 @@ MeshRenderer::MeshRenderer(Mesh * mesh, Material * material)
 {
 	this->mesh = mesh;
 	this->material = material;
+}
+
+Material * MeshRenderer::getMaterial()
+{
+	return material;
 }

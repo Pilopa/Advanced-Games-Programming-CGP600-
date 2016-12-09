@@ -4,6 +4,7 @@
 #include "GraphicsManager.h"
 #include "GameManager.h"
 #include "Exceptions.h"
+#include "InputManager.h"
 
 /* Static Declarations */
 
@@ -29,6 +30,14 @@ LRESULT ApplicationManager::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 	case WM_SIZE:
 		if (GraphicsManager::isInitialized())
 			GraphicsManager::instance()->resizeBuffers(LOWORD(lParam), HIWORD(lParam));
+		break;
+
+	case WM_KEYDOWN:
+		InputManager::instance()->keyPressed(InputManager::convertVirtualKeyCode(wParam));
+		break;
+
+	case WM_KEYUP:
+		InputManager::instance()->keyReleased(InputManager::convertVirtualKeyCode(wParam));
 		break;
 
 	default:

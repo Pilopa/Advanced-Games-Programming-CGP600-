@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <set>
 
 enum KeyCode {
 	KEY_A, KEY_B, KEY_C, KEY_D, KEY_E, KEY_F, KEY_G, KEY_H, KEY_I,
@@ -14,6 +15,8 @@ enum KeyCode {
 class InputManager {
 
 	public:
+		
+		// Recalculates the input values for the current frame
 		void reset();
 
 		// Returns if the given key has been pressed in this frame.
@@ -26,6 +29,9 @@ class InputManager {
 
 		void setKeyDown(KeyCode key, bool val);
 		void setKey(KeyCode key, bool val);
+		void keyPressed(KeyCode keyCode);
+		void keyReleased(KeyCode keyCode);
+		void reset(KeyCode keyCode);
 
 		#pragma endregion
 
@@ -41,5 +47,6 @@ class InputManager {
 	private:
 		std::map<KeyCode, bool> keyDownMap;
 		std::map<KeyCode, bool> keyMap;
+		std::set<KeyCode> keyBuffer;
 		static InputManager* s_instance;
 };

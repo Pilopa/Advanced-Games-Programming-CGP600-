@@ -8,9 +8,9 @@ cbuffer MatrixBuffer {
 	matrix projectionMatrix; // = 64 bytes
 }; 
 
-   //////////////
-   // TYPEDEFS //
-   //////////////
+//////////////
+// TYPEDEFS //
+//////////////
 struct VertexInputType
 {
 	float3 position : POSITION;
@@ -23,6 +23,7 @@ struct PixelInputType
 	float4 position : SV_POSITION;
 	float2 texCoord : TEXCOORD0;
 	float3 normal : NORMAL;
+	float4 vertexPosition : POSITION;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -48,6 +49,10 @@ PixelInputType main(VertexInputType input)
 
 	//Normalize normal vector
 	output.normal = normalize(output.normal);
+
+	// Store the vertex position for later use, the SV_POSITION would not work
+	// as it is transformed into screen space before the pixel shader gets them
+	output.vertexPosition = mul(pos, worldMatrix);
 
 	return output;
 }

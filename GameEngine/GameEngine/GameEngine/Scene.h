@@ -16,11 +16,15 @@ class Scene {
 		Camera* getActiveCamera();
 		void setAmbientLight(AmbientLight* ambientLight);
 		AmbientLight* getAmbientLight();
+		Renderer* getSkybox();
+
+		Scene();
 
 	private:
 
 		std::set<GameObject*> rootGameObjects;
 		Camera* activeCamera = nullptr;
 		AmbientLight* ambientLight = nullptr;
+		Renderer* skybox = nullptr;
 
 };

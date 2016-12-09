@@ -12,10 +12,10 @@ LightingManager* LightingManager::s_instance = nullptr;
 void LightingManager::render()
 {
 	// Set shader resources
-	ID3D11ShaderResourceView* pSRV = GraphicsManager::instance()->getDeferredShaderResourceView(0);
-	GraphicsManager::instance()->getDeviceContext()->PSSetShaderResources(0, 1, &pSRV); // Texture Data
-	pSRV = GraphicsManager::instance()->getDeferredShaderResourceView(1);
-	GraphicsManager::instance()->getDeviceContext()->PSSetShaderResources(1, 1, &pSRV); // Normal Data
+	for (int i = 0; i < BUFFER_COUNT; i++) {
+		ID3D11ShaderResourceView* pSRV = GraphicsManager::instance()->getDeferredShaderResourceView(i);
+		GraphicsManager::instance()->getDeviceContext()->PSSetShaderResources(i, 1, &pSRV);
+	}
 
 	// Render ambient light first
 	GameManager::instance()->getScene()->getAmbientLight()->render();
@@ -36,8 +36,11 @@ void LightingManager::render()
 	GraphicsManager::instance()->getDeviceContext()->OMSetBlendState(NULL, NULL, defaultSampleMask);
 
 	// Clear Shader resources
-	ID3D11ShaderResourceView *const pSRVNull[2] = { NULL, NULL };
-	GraphicsManager::instance()->getDeviceContext()->PSSetShaderResources(0, 2, pSRVNull);
+	ID3D11ShaderResourceView* pSRVNull[BUFFER_COUNT];
+	for (int i = 0; i < BUFFER_COUNT; i++) {
+		pSRVNull[i] = NULL;
+	}
+	GraphicsManager::instance()->getDeviceContext()->PSSetShaderResources(0, BUFFER_COUNT, pSRVNull);
 }
 
 void LightingManager::registerLight(Light * light)

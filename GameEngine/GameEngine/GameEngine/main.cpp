@@ -22,66 +22,7 @@
 #include "FileManager.h"
 #include "AmbientLight.h"
 #include "GraphicsManager.h"
-
-// Defines a triangle of vertices, with each vertex having a distinct color
-const std::vector<Vertex> testCubeVertices =
-{
-	// back face
-	{ DirectX::XMFLOAT3(-1.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, -1.0F) },
-	{ DirectX::XMFLOAT3(-1.0f, -1.0f, 1.0f), DirectX::XMFLOAT2(1.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, -1.0F) },
-	{ DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(0.0F, 1.0F), DirectX::XMFLOAT3(0.0F, 0.0F, -1.0F) },
-	{ DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(0.0F, 1.0F), DirectX::XMFLOAT3(0.0F, 0.0F, -1.0F) },
-	{ DirectX::XMFLOAT3(-1.0f, -1.0f, 1.0f), DirectX::XMFLOAT2(1.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, -1.0F) },
-	{ DirectX::XMFLOAT3(1.0f, -1.0f, 1.0f), DirectX::XMFLOAT2(1.0F, 1.0F), DirectX::XMFLOAT3(0.0F, 0.0F, -1.0F) },
-
-	// front face
-	{ DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) },
-	{ DirectX::XMFLOAT3(-1.0f, 1.0f, -1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) },
-	{ DirectX::XMFLOAT3(1.0f, 1.0f, -1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) },
-	{ DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) },
-	{ DirectX::XMFLOAT3(1.0f, 1.0f, -1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) },
-	{ DirectX::XMFLOAT3(1.0f, -1.0f, -1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) },
-
-	// left face
-	{ DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) }, // red
-	{ DirectX::XMFLOAT3(-1.0f, -1.0f, 1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) }, // green
-	{ DirectX::XMFLOAT3(-1.0f, 1.0f, -1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) }, // yellow
-	{ DirectX::XMFLOAT3(-1.0f, -1.0f, 1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) }, // green
-	{ DirectX::XMFLOAT3(-1.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) }, // blue
-	{ DirectX::XMFLOAT3(-1.0f, 1.0f, -1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) }, // yellow
-
-																						  // right face
-	{ DirectX::XMFLOAT3(1.0f, -1.0f, 1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) },
-	{ DirectX::XMFLOAT3(1.0f, -1.0f, -1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) },
-	{ DirectX::XMFLOAT3(1.0f, 1.0f, -1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) },
-	{ DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) },
-	{ DirectX::XMFLOAT3(1.0f, -1.0f, 1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) },
-	{ DirectX::XMFLOAT3(1.0f, 1.0f, -1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) },
-
-	// bottom face
-	{ DirectX::XMFLOAT3(1.0f, -1.0f, -1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) }, // blue
-	{ DirectX::XMFLOAT3(1.0f, -1.0f, 1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) }, // red
-	{ DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) }, // green
-	{ DirectX::XMFLOAT3(1.0f, -1.0f, 1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) }, // red
-	{ DirectX::XMFLOAT3(-1.0f, -1.0f, 1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) }, // purple
-	{ DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) }, // green
-
-																						   // top face
-	{ DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) },
-	{ DirectX::XMFLOAT3(1.0f, 1.0f, -1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) },
-	{ DirectX::XMFLOAT3(-1.0f, 1.0f, -1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) },
-	{ DirectX::XMFLOAT3(-1.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) },
-	{ DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) },
-	{ DirectX::XMFLOAT3(-1.0f, 1.0f, -1.0f), DirectX::XMFLOAT2(0.0F, 0.0F), DirectX::XMFLOAT3(0.0F, 0.0F, 0.0F) }
-
-};
-
-const std::vector<UINT> testCubeIndices = {
-	0,1,2,3,4,5,6,7,8,9,10,
-	11,12,13,14,15,16,17,18,19,
-	20,21,22,23,24,25,26,27,28,
-	29,30,31,32,33,34,35
-};
+#include "PointLight.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -95,7 +36,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		// Define Ambient Light
 		float ambientColor[4] = { 1.0F, 1.0F, 1.0F, 1.0F };
-		AmbientLight ambientLight = AmbientLight(ambientColor, 0.5F);
+		AmbientLight ambientLight = AmbientLight(ambientColor, 0.1F);
 
 		// Load Shaders
 		DeferredShaderClass deferredShaderClass = DeferredShaderClass();
@@ -111,12 +52,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		// Initialize sun
 		GameObject sunGameObject = GameObject();
 		sunGameObject.getTransform()->localPosition->x = 0.0F;
-		sunGameObject.getTransform()->localPosition->y = 5.0F;
-		sunGameObject.getTransform()->localPosition->z = 0.0F;
-		sunGameObject.getTransform()->localRotation->pitch = 45.0F;
-		float sunColor[4] = { 1.0F, 0.85F, 0.10F, 1.0F };
+		sunGameObject.getTransform()->localPosition->y = 2.0F;
+		sunGameObject.getTransform()->localPosition->z = 4.0F;
+		float sunColor[4] = { 1.0F, 1.0F, 1.0F, 1.0F };
 		DirectionalLight directionalLight = DirectionalLight(sunColor, 1.0F);
 		sunGameObject.addComponent(&directionalLight);
+		PointLight pointLight = PointLight(sunColor, 1.0F);
+		sunGameObject.addComponent(&pointLight);
 
 		Camera mainCamera = Camera(PERSPECTIVE, 70.0F, 1.0F, 100.0F, 0.0F);
 		mainCameraObject.addComponent(&mainCamera);
@@ -128,12 +70,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		cube.getTransform()->localPosition->x = 0.0F;
 		cube.getTransform()->localPosition->y = 0.0F;
 		cube.getTransform()->localPosition->z = 5.0F;
-		//cube.getTransform()->localScale->x = 0.025F;
-		//cube.getTransform()->localScale->y = 0.025F;
-		//cube.getTransform()->localScale->z = 0.025F;
-		Mesh* cubeMesh = FileManager::loadObjMesh(L"sphere.obj"); //Mesh(testCubeVertices, testCubeIndices);
+		Mesh* cubeMesh = FileManager::loadObjMesh(L"sphere.obj");
 		Texture cubeTexture = Texture(L"cubeTexture.bmp");
-		Material cubeMaterial = Material(&deferredShaderClass, &cubeTexture);
+		Material cubeMaterial = Material(&deferredShaderClass, &cubeTexture, 5.0f);
 		MeshRenderer cubeRenderer = MeshRenderer(cubeMesh, &cubeMaterial);
 		cube.addComponent(&cubeRenderer);
 		//cube.setParent(&mainCameraObject);
@@ -142,10 +81,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		cube2.getTransform()->localPosition->x = -3.0F;
 		cube2.getTransform()->localPosition->y = -1.0F;
 		cube2.getTransform()->localPosition->z = 0.0F;
-		cube2.getTransform()->localRotation->yaw = 45.0F;
-		//cube2.getTransform()->localScale->x = 0.025F;
-		//cube2.getTransform()->localScale->y = 0.025F;
-		//cube2.getTransform()->localScale->z = 0.025F;
 		MeshRenderer cube2Renderer = MeshRenderer(cubeMesh, &cubeMaterial);
 		cube2.addComponent(&cube2Renderer);
 		//cube2.setParent(&cube);

@@ -4,6 +4,10 @@
 
 class PointLight : public Light {
 
-	virtual void render(); // Overrides Light::render
+	public:
+
+		virtual void render(); // Overrides Light::render
+
+		PointLight(float color[4], float intensity);
 
 };

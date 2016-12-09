@@ -1,6 +1,5 @@
 #pragma once
 
-#include <DirectXTex.h>
 #include "WICTextureLoader.h"
 #include "Texture.h"
 #include "Exceptions.h"
@@ -21,4 +20,9 @@ Texture::Texture(WCHAR * path)
 ID3D11ShaderResourceView * Texture::getTextureView()
 {
 	return textureView;
+}
+
+Texture::Texture()
+{
+	// Do nothing
 }

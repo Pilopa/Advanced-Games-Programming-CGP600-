@@ -37,49 +37,88 @@ void Transform::scale(DirectX::XMVECTOR factor)
 	localScale->z += factor.m128_f32[2];
 }
 
-DirectX::XMVECTOR Transform::getDirectionalVector()
+DirectX::XMVECTOR Transform::getLocalDirectionalVector()
 {
-	return getRotationMatrix().r[2];
+	return getLocalRotationMatrix().r[2];
 }
 
-DirectX::XMVECTOR Transform::getPositionVector()
+DirectX::XMVECTOR Transform::getLocalPositionVector()
 {
 	return { localPosition->x, localPosition->y, localPosition->z };
 }
 
-DirectX::XMVECTOR Transform::getRotationVector()
+DirectX::XMVECTOR Transform::getLocalRotationVector()
 {
 	return{ localRotation->roll, localRotation->pitch, localRotation->yaw };
 }
 
-DirectX::XMVECTOR Transform::getScaleVector()
+DirectX::XMVECTOR Transform::getLocalScaleVector()
 {
 	return{ localScale->x, localScale->y, localScale->z };
 }
 
-DirectX::XMMATRIX Transform::getTranslationMatrix()
+DirectX::XMMATRIX Transform::getLocalTranslationMatrix()
 {
 	return DirectX::XMMatrixTranslation(localPosition->x, localPosition->y, localPosition->z);
 }
 
-DirectX::XMMATRIX Transform::getRotationMatrix()
+DirectX::XMMATRIX Transform::getLocalRotationMatrix()
 {
 	return DirectX::XMMatrixRotationRollPitchYaw(DirectX::XMConvertToRadians(localRotation->pitch), DirectX::XMConvertToRadians(localRotation->yaw), DirectX::XMConvertToRadians(localRotation->roll));
 }
 
-DirectX::XMMATRIX Transform::getScaleMatrix()
+DirectX::XMMATRIX Transform::getLocalScaleMatrix()
 {
 	return DirectX::XMMatrixScaling(localScale->x, localScale->y, localScale->z);
 }
 
 DirectX::XMMATRIX Transform::getWorldMatrix()
 {
-	DirectX::XMMATRIX local = getScaleMatrix() * getRotationMatrix() * getTranslationMatrix();
+	DirectX::XMMATRIX local = getLocalScaleMatrix() * getLocalRotationMatrix() * getLocalTranslationMatrix();
 	GameObject* parent = nullptr;
 	if ((parent = this->getGameObject()->getParent()) != nullptr) {
 		local *= parent->getTransform()->getWorldMatrix();
 	}
 	return local;
+}
+
+DirectX::XMVECTOR Transform::getWorldPositionVector()
+{
+	DirectX::XMVECTOR local = getLocalPositionVector();
+	GameObject* parent = nullptr;
+	if ((parent = this->getGameObject()->getParent()) != nullptr) {
+		local = DirectX::XMVectorAdd(local, parent->getTransform()->getLocalPositionVector());
+	}
+	return local;
+}
+
+DirectX::XMVECTOR Transform::getWorldDirectionalVector()
+{
+	return getWorldRotationMatrix().r[2];
+}
+
+DirectX::XMMATRIX Transform::getWorldRotationMatrix()
+{
+	// Initialize with local values
+	float roll = localRotation->roll,
+		pitch = localRotation->pitch,
+		yaw = localRotation->yaw;
+
+	// Add parent values
+	GameObject* parent = nullptr;
+	if ((parent = this->getGameObject()->getParent()) != nullptr) {
+		roll += parent->getTransform()->localRotation->roll;
+		pitch += parent->getTransform()->localRotation->pitch;
+		yaw += parent->getTransform()->localRotation->yaw;
+	}
+
+	// Clamp to 360°, calculation is minimally unprecise due to int conversion
+	roll = (int) roll % 360;
+	pitch = (int) pitch % 360;
+	yaw = (int) yaw % 360;
+
+	// Return matrix
+	return DirectX::XMMatrixRotationRollPitchYaw(DirectX::XMConvertToRadians(pitch), DirectX::XMConvertToRadians(yaw), DirectX::XMConvertToRadians(roll));
 }
 
 void Transform::update()

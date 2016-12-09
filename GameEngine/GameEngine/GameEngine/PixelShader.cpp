@@ -17,7 +17,12 @@ ID3D11SamplerState * PixelShader::getSamplerState()
 	return samplerState;
 }
 
-PixelShader* PixelShader::loadFromFile(LPCWSTR path, D3D11_BUFFER_DESC* constant_buffer_desc)
+void PixelShader::setSamplerState(ID3D11SamplerState * samplerState)
+{
+	this->samplerState = samplerState;
+}
+
+PixelShader* PixelShader::loadFromFile(LPCWSTR path, D3D11_BUFFER_DESC* constant_buffer_desc, D3D11_SAMPLER_DESC* samplerDesc)
 {
 	// Declare temporary variables
 	HRESULT result = S_OK;
@@ -32,7 +37,8 @@ PixelShader* PixelShader::loadFromFile(LPCWSTR path, D3D11_BUFFER_DESC* constant
 	if (error != 0) { // Check for shader compilation error
 		LogError((char*)error->GetBufferPointer());
 		error->Release();
-		if (FAILED(result)) { // Dont fail if erro is just a warning
+		if (FAILED(result)) { // Dont fail if error is just a warning
+			LogError("PixelShader could not be loaded!");
 			return nullptr;
 		}
 	}
@@ -62,27 +68,29 @@ PixelShader* PixelShader::loadFromFile(LPCWSTR path, D3D11_BUFFER_DESC* constant
 	shaderResource->Release();
 
 	// Create a texture sampler state description.
-	D3D11_SAMPLER_DESC samplerDesc;
-	ZeroMemory(&samplerDesc, sizeof(samplerDesc));
-	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-	samplerDesc.MipLODBias = 0.0f;
-	samplerDesc.MaxAnisotropy = 1;
-	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-	samplerDesc.BorderColor[0] = 0;
-	samplerDesc.BorderColor[1] = 0;
-	samplerDesc.BorderColor[2] = 0;
-	samplerDesc.BorderColor[3] = 0;
-	samplerDesc.MinLOD = 0;
-	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	if (samplerDesc == nullptr) {
+		samplerDesc = new D3D11_SAMPLER_DESC();
+		samplerDesc->Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+		samplerDesc->AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+		samplerDesc->AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+		samplerDesc->AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+		samplerDesc->MipLODBias = 0.0f;
+		samplerDesc->MaxAnisotropy = 1;
+		samplerDesc->ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+		samplerDesc->BorderColor[0] = 0;
+		samplerDesc->BorderColor[1] = 0;
+		samplerDesc->BorderColor[2] = 0;
+		samplerDesc->BorderColor[3] = 0;
+		samplerDesc->MinLOD = 0;
+		samplerDesc->MaxLOD = D3D11_FLOAT32_MAX;
+	}
 
 	// Create the texture sampler state.
-	result = GraphicsManager::instance()->getDevice()->CreateSamplerState(&samplerDesc, &pixelShader->samplerState);
+	result = GraphicsManager::instance()->getDevice()->CreateSamplerState(samplerDesc, &pixelShader->samplerState);
 	if (FAILED(result))
 	{
-		return false;
+		LogError("SamplerState could not be created!");
+		return nullptr;
 	}
 
 	return pixelShader;

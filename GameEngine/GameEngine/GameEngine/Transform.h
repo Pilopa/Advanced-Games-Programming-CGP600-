@@ -47,16 +47,21 @@ class Transform : public Component {
 		void rotate(Axis axis, float degree);
 		void scale(DirectX::XMVECTOR factor);
 
-		DirectX::XMVECTOR getDirectionalVector();
+		DirectX::XMVECTOR getLocalDirectionalVector();
 
-		DirectX::XMVECTOR getPositionVector();
-		DirectX::XMVECTOR getRotationVector();
-		DirectX::XMVECTOR getScaleVector();
+		DirectX::XMVECTOR getLocalPositionVector();
+		DirectX::XMVECTOR getLocalRotationVector();
+		DirectX::XMVECTOR getLocalScaleVector();
 
-		DirectX::XMMATRIX getTranslationMatrix();
-		DirectX::XMMATRIX getRotationMatrix();
-		DirectX::XMMATRIX getScaleMatrix();
+		DirectX::XMMATRIX getLocalTranslationMatrix();
+		DirectX::XMMATRIX getLocalRotationMatrix();
+		DirectX::XMMATRIX getLocalScaleMatrix();
 		DirectX::XMMATRIX getWorldMatrix();
+
+		DirectX::XMVECTOR getWorldPositionVector();
+		DirectX::XMVECTOR getWorldDirectionalVector();
+
+		DirectX::XMMATRIX getWorldRotationMatrix();
 
 		void update(); // Overrides Component::update
 		void awake(); // Overrides Component::awake

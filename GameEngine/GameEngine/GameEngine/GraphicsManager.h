@@ -7,7 +7,8 @@
 #include "ClassDef.h"
 
 #define DEFAULT_HEIGHT_VALUE 8
-#define BUFFER_COUNT 2 // [color, normals]
+#define BUFFER_COUNT 3 // [color, normals, position]
+#define RENDER_QUAD_VERTEX_COUNT 6
 
 class GraphicsManager {
 
@@ -38,6 +39,9 @@ class GraphicsManager {
 		HRESULT enableZBuffer();
 		HRESULT disableZBuffer();
 		HRESULT renderSceneToTexture();
+		HRESULT renderSkybox();
+		HRESULT disableBackfaceCulling();
+		HRESULT enableBackfaceCulling();
 
 		ID3D11Texture2D* deferredRenderTargetTextures[BUFFER_COUNT];
 		ID3D11RenderTargetView* deferredRenderTargetViews[BUFFER_COUNT];
@@ -53,7 +57,8 @@ class GraphicsManager {
 		IDXGISwapChain* swapChain = nullptr;
 		ID3D11DepthStencilView* zBuffer = nullptr;
 		ID3D11DepthStencilState* zBufferStateDisabled = nullptr;
-		ID3D11RasterizerState* rasterState = nullptr;
+		ID3D11RasterizerState* rasterStateDefault = nullptr;
+		ID3D11RasterizerState* rasterStateNoBackfaceCulling = nullptr;
 		ID3D11BlendState1* additiveBlendState;
 		std::set<Renderer*> renderers;
 		bool vsync = false;

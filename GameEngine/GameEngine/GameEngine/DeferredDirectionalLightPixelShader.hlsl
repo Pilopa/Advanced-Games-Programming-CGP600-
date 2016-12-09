@@ -3,6 +3,7 @@
 /////////////
 Texture2D colorTexture : register(t0);
 Texture2D normalTexture : register(t1);
+Texture2D positionTexture : register(t2);
 
 ///////////////////
 // SAMPLE STATES //
@@ -18,6 +19,7 @@ cbuffer LightBuffer
 	float4 lightDirection;
 	float4 viewDirection;
 	float lightIntensity;
+	float shininess;
 };
 
 //////////////
@@ -36,12 +38,7 @@ float4 main(PixelInputType input) : SV_TARGET
 {
 	float4 input_color;
 	float4 input_normal;
-	float3 reflection;
-	float4 specular_color = float4(1.0F, 1.0F, 1.0F, 1.0F);
-	float4 specular = float4(0.0f, 0.0f, 0.0f, 1.0f);
-	float4 diffuse;
-	float3 lightDir;
-	float calculatedLightIntensity;
+	float4 input_position;
 	float4 outputColor;
 
 	// Sample the colors from the color render texture using the point sampler at this texture coordinate location.
@@ -50,29 +47,39 @@ float4 main(PixelInputType input) : SV_TARGET
 	// Sample the normals from the normal render texture using the point sampler at this texture coordinate location.
 	input_normal = normalTexture.Sample(SampleTypePoint, input.tex);
 
+	// Sample the position from the position render texture using the point sampler at this texture coordinate location.
+	input_position = positionTexture.Sample(SampleTypePoint, input.tex);
+
+	// Calculate view vector
+	float3 V = -viewDirection.xyz;
+
 	// Invert the light direction for calculations.
-	lightDir = -lightDirection;
+	float3 L = -lightDirection.xyz;
 
 	// Calculate the amount of light on this pixel.
-	calculatedLightIntensity = saturate(dot(input_normal.xyz, lightDir));
+	float NdotL = saturate(dot(input_normal.xyz, L));
 
 	// Set default output color
-	outputColor = input_color;
+	outputColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 
 	if (!(input_normal.r == 0.0f && input_normal.g == 0.0f
-		&& input_normal.b == 0.0f && input_normal.a == 1.0f)) {
+		&& input_normal.b == 0.0f && input_normal.a == 0.0f)) {
 
-		// Calculate final diffuse color
-		diffuse = saturate(lightIntensity * calculatedLightIntensity * lightColor * input_color);
+		float4 specular_color = float4(1.0f, 1.0f, 1.0f, 1.0f);
+
+		// Calculate the light's diffuse color
+		float4 diffuse = saturate(lightColor * NdotL);
 
 		// Calculate reflection
-		reflection = reflect(lightDir, input_normal.xyz);
+		float3 R = normalize(reflect(-L, input_normal.xyz));
+		float RdotV = max(0, dot(R, viewDirection.xyz));
+		float3 H = normalize(L + V);
 
-		// Calculate specular
-		specular = saturate(specular_color * pow(max(dot(reflection, viewDirection), 0.0F), 5.0f) * length(input_color));
+		// Calculate the light's specular color
+		float4 specular = specular_color * pow(RdotV, shininess);
 
 		// Add specular
-		outputColor = saturate(diffuse + specular);
+		outputColor = saturate(diffuse + specular) * input_color;
 		
 	}
 

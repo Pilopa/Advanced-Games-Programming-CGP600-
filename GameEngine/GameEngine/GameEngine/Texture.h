@@ -10,6 +10,8 @@ class Texture : public Resource {
 
 		ID3D11ShaderResourceView* getTextureView();
 
-	private:
+	protected:
+		Texture();
+
 		ID3D11ShaderResourceView* textureView;
 };

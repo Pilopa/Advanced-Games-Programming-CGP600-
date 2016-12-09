@@ -11,6 +11,8 @@ class MeshRenderer : public Renderer {
 
 		MeshRenderer(Mesh* mesh, Material* material);
 
+		Material* getMaterial();
+
 	private:
 		Mesh* mesh;
 		Material* material;

@@ -6,9 +6,11 @@
 #include "PixelShader.h"
 #include "GraphicsManager.h"
 #include "ApplicationManager.h"
+#include "MeshRenderer.h"
 #include "GameObject.h"
 #include "Scene.h"
 #include "Camera.h"
+#include "Material.h"
 
 DirectionalLightShaderClass::DirectionalLightShaderClass()
 {
@@ -37,15 +39,21 @@ void DirectionalLightShaderClass::prepare(GameObject * object)
 
 	// Update pixel shader constant buffer
 	LightBuffer lightBufferValues;
-	lightBufferValues.lightDirection = object->getTransform()->getDirectionalVector();
+
+	// Get direction from input object
+	lightBufferValues.lightDirection = object->getTransform()->getWorldDirectionalVector();
+
+	// Get light intensity from light object
 	lightBufferValues.lightIntensity = lightComponent->getIntensity();
+
 	lightBufferValues.lightColor = {
 		lightComponent->getColor()[0],
 		lightComponent->getColor()[1],
 		lightComponent->getColor()[2],
 		lightComponent->getColor()[3]
 	};
-	lightBufferValues.viewDirection = object->getScene()->getActiveCamera()->getGameObject()->getTransform()->getDirectionalVector();
+	lightBufferValues.shininess = 64.0f;
+	lightBufferValues.viewDirection = object->getScene()->getActiveCamera()->getGameObject()->getTransform()->getWorldDirectionalVector();
 
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	GraphicsManager::instance()->getDeviceContext()->Map(pixelShader->getConstantBuffer(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
