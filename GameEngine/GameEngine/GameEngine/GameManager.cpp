@@ -4,6 +4,7 @@
 #include <chrono>
 #include "GameManager.h"
 #include "GraphicsManager.h"
+#include "CollisionManager.h"
 #include "InputManager.h"
 #include "Debug.h"
 #include "Scene.h"
@@ -32,6 +33,9 @@ void GameManager::executeGameLoopTick()
 	timer = std::chrono::high_resolution_clock::now().time_since_epoch().count();
 	deltaTime = (timer - tmpTimer) / 1000000.0;
 	//LogInfo((std::string("deltaTime: ") + std::to_string(this->getDeltaTime()) + std::string("\n")).c_str());
+
+	// Do collision checks
+	CollisionManager::instance()->performCollisionCheck();
 
 	// Call Update if there is an active scene
 	if (scene) scene->update();

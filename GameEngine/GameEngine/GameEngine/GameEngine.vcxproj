@@ -125,6 +125,7 @@
     <ClCompile Include="ApplicationManager.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Collider.cpp" />
+    <ClCompile Include="Collision.cpp" />
     <ClCompile Include="CollisionManager.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="DeferredShaderClass.cpp" />
@@ -150,6 +151,7 @@
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderClass.cpp" />
     <ClCompile Include="SkyboxShaderClass.cpp" />
+    <ClCompile Include="SphereCollider.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Texture3D.cpp" />
     <ClCompile Include="Transform.cpp" />
@@ -159,6 +161,9 @@
   <ItemGroup>
     <ClInclude Include="..\DirectXTex\DDSTextureLoader\DDSTextureLoader.h" />
     <ClInclude Include="..\DirectXTex\WICTextureLoader\WICTextureLoader.h" />
+    <ClInclude Include="Collision.h" />
+    <ClInclude Include="CustomScript.h" />
+    <ClInclude Include="SphereCollider.h" />
     <ClInclude Include="Texture3D.h" />
     <ClInclude Include="AmbientLight.h" />
     <ClInclude Include="AmbientLightShaderClass.h" />

@@ -31,3 +31,4 @@ class Texture;
 class Transform;
 struct Vertex;
 class Window;
+class Collision;
