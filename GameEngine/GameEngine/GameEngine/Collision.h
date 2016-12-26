@@ -1,19 +1,20 @@
 #pragma once
 
-#include "ClassDef.h"
 #include <DirectXMath.h>
 #include <set>
+#include "Utility.h"
+#include "ClassDef.h"
 
 class Collision {
 
 	public:
-		Collision(const Collider* other, std::set<DirectX::XMVECTOR> pointOfImpact);
+		Collision(Collider* other, std::set<DirectX::XMVECTOR, VectorCompare>* pointOfImpact);
 
-		const Collider* getOther();
-		const std::set<DirectX::XMVECTOR>* getPointsOfImpact();
+		Collider* getOther();
+		std::set<DirectX::XMVECTOR, VectorCompare>* getPointsOfImpact();
 
 	private:
-		const Collider* other;
-		const std::set<DirectX::XMVECTOR>* pointsOfImpact;
+		Collider* other;
+		std::set<DirectX::XMVECTOR, VectorCompare>* pointsOfImpact;
 
 };

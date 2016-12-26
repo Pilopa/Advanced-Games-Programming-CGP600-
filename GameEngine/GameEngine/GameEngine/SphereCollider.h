@@ -5,12 +5,13 @@
 class SphereCollider : public Collider {
 
 	public:
-		virtual void onCollision(const Collision* collision); // Overrides Collider::onCollision 
-		virtual std::set<DirectX::XMVECTOR>* checkCollision(Collider* other); // Overrides Collider::checkCollision 
+		virtual void onCollision(Collision* collision); // Overrides Collider::onCollision 
+		std::set<DirectX::XMVECTOR, VectorCompare>* checkCollision(Collider* other); // Overrides Collider::checkCollision 
 
 		float getRadius();
-		SphereCollider(float radius);
+		SphereCollider(Manager<Collider>* manager, DirectX::XMVECTOR centerOffset, float radius);
 
 	private:
 		float radius = 1.0f;
+		DirectX::XMVECTOR centerOffset = {0.0F, 0.0F, 0.0F};
 };

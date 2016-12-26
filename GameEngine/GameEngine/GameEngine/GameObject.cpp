@@ -47,7 +47,7 @@ void GameObject::shutdown()
 	}
 }
 
-GameObject* GameObject::getParent()
+GameObject* GameObject::getParent() 
 {
 	return parent;
 }
@@ -85,7 +85,7 @@ void GameObject::setScene(Scene * scene)
 	}
 }
 
-Transform * GameObject::getTransform()
+Transform * GameObject::getTransform() 
 {
 	return &transform;
 }

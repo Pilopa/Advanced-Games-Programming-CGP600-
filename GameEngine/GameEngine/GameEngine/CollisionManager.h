@@ -4,14 +4,15 @@
 #include <set>
 #include <map>
 #include "ClassDef.h"
+#include "Manager.h"
 
-class CollisionManager {
+class CollisionManager : public Manager<Collider> {
 
 	public:
 		void performCollisionCheck();
 
-		void registerCollider(Collider* collider);
-		void deregisterCollider(Collider* collider);
+		void add(Collider* collider); // Overrides Manager::add
+		void remove(Collider* collider); // Overrides Manager::remove
 
 		static CollisionManager* instance() {
 			if (!s_instance)

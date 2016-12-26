@@ -5,7 +5,7 @@
 class Component {
 
 	public:
-		GameObject* getGameObject();
+		GameObject* getGameObject() const;
 		void setGameObject(GameObject* gameObject);
 
 		virtual void update() = 0;

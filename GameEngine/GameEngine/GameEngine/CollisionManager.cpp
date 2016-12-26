@@ -1,14 +1,18 @@
 #pragma once
 
 #include "CollisionManager.h"
-#include "Collision.h"
 #include "Collider.h"
+#include "Collision.h"
 #include "GameObject.h"
 #include "Transform.h"
 #include "Utility.h"
+#include "Debug.h"
+
+CollisionManager* CollisionManager::s_instance = nullptr;
 
 void CollisionManager::performCollisionCheck()
 {
+
 	for (std::map<Collider*, DirectX::XMMATRIX>::const_iterator iterator = colliders.begin(), end = colliders.end(); iterator != end; ++iterator) {
 		std::pair<Collider*, DirectX::XMMATRIX> pair = *iterator;
 
@@ -25,7 +29,7 @@ void CollisionManager::performCollisionCheck()
 	}
 }
 
-void CollisionManager::registerCollider(Collider * collider)
+void CollisionManager::add(Collider * collider)
 {
 	// Do initial collision check on add
 	forCollider(collider);
@@ -34,7 +38,7 @@ void CollisionManager::registerCollider(Collider * collider)
 	colliders.insert_or_assign(collider, collider->getGameObject()->getTransform()->getWorldMatrix());
 }
 
-void CollisionManager::deregisterCollider(Collider * collider)
+void CollisionManager::remove(Collider * collider)
 {
 	colliders.erase(collider);
 }
@@ -42,11 +46,26 @@ void CollisionManager::deregisterCollider(Collider * collider)
 void CollisionManager::forCollider(Collider * collider)
 {
 	for (std::map<Collider*, DirectX::XMMATRIX>::const_iterator iterator = colliders.begin(), end = colliders.end(); iterator != end; ++iterator) {
+
+		// Retrieve iterator variables
 		std::pair<Collider*, DirectX::XMMATRIX> pair = *iterator;
 		Collider* other = pair.first;
-		std::set<DirectX::XMVECTOR>* pointsOfImpact = collider->checkCollision(other);
+
+		// Dont collide with yourself
+		if (collider == other) continue;
+
+		// Check collision
+		std::set<DirectX::XMVECTOR, VectorCompare>* pointsOfImpact = collider->checkCollision(other);
 		if (pointsOfImpact != nullptr) {
-			collider->onCollision(new Collision(other, *pointsOfImpact));
+			// Generate collision object if a collision took place
+			Collision* collision = new Collision(other, pointsOfImpact);
+
+			// Handle the collision
+			collider->onCollision(collision);
+
+			// Free memory
+			delete collision;
+			delete pointsOfImpact;
 		}
 	}
 }

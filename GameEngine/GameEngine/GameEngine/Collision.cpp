@@ -2,18 +2,18 @@
 
 #include "Collision.h"
 
-Collision::Collision(const Collider * other, std::set<DirectX::XMVECTOR> pointsOfImpact)
+Collision::Collision(Collider * other, std::set<DirectX::XMVECTOR, VectorCompare>* pointsOfImpact)
 {
 	this->other = other;
-	this->pointsOfImpact = &pointsOfImpact;
+	this->pointsOfImpact = pointsOfImpact;
 }
 
-const Collider * Collision::getOther()
+Collider * Collision::getOther()
 {
 	return other;
 }
 
-const std::set<DirectX::XMVECTOR>* Collision::getPointsOfImpact()
+std::set<DirectX::XMVECTOR, VectorCompare>* Collision::getPointsOfImpact()
 {
 	return pointsOfImpact;
 }

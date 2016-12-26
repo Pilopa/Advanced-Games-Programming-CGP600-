@@ -23,6 +23,8 @@
 #include "AmbientLight.h"
 #include "GraphicsManager.h"
 #include "PointLight.h"
+#include "SphereCollider.h"
+#include "CollisionManager.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -62,28 +64,28 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		Camera mainCamera = Camera(PERSPECTIVE, 70.0F, 1.0F, 100.0F, 0.0F);
 		mainCameraObject.addComponent(&mainCamera);
-		
-		FreeFlightCameraScript freeFlightScript = FreeFlightCameraScript();
-		mainCameraObject.addComponent(&freeFlightScript);
-		
-		GameObject cube = GameObject();
-		cube.getTransform()->localPosition->x = 0.0F;
-		cube.getTransform()->localPosition->y = 0.0F;
-		cube.getTransform()->localPosition->z = 5.0F;
+
 		Mesh* cubeMesh = FileManager::loadObjMesh(L"sphere.obj");
 		Texture cubeTexture = Texture(L"cubeTexture.bmp");
 		Material cubeMaterial = Material(&deferredShaderClass, &cubeTexture, 5.0f);
 		MeshRenderer cubeRenderer = MeshRenderer(cubeMesh, &cubeMaterial);
+		
+		GameObject cube = GameObject();
+		SphereCollider collider1 = SphereCollider(CollisionManager::instance(), { 0.0F, 0.0F, 0.0F }, 1.0f);
+		cube.getTransform()->localPosition->x = 0.0F;
+		cube.getTransform()->localPosition->y = 0.0F;
+		cube.getTransform()->localPosition->z = 5.0F;
 		cube.addComponent(&cubeRenderer);
-		//cube.setParent(&mainCameraObject);
+		cube.addComponent(&collider1);
 
 		GameObject cube2 = GameObject();
+		SphereCollider collider2 = SphereCollider(CollisionManager::instance(), { 0.0F, 0.0F, 0.0F }, 1.0f);
 		cube2.getTransform()->localPosition->x = -3.0F;
 		cube2.getTransform()->localPosition->y = -1.0F;
 		cube2.getTransform()->localPosition->z = 0.0F;
 		MeshRenderer cube2Renderer = MeshRenderer(cubeMesh, &cubeMaterial);
 		cube2.addComponent(&cube2Renderer);
-		//cube2.setParent(&cube);
+		cube2.addComponent(&collider2);
 
 		scene.setAmbientLight(&ambientLight);
 		scene.setActiveCamera(&mainCamera);
@@ -91,6 +93,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		scene.addRootObject(&cube);
 		scene.addRootObject(&cube2);
 		scene.addRootObject(&sunGameObject);
+
+		// Free flight script
+		FreeFlightCameraScript freeFlightScript = FreeFlightCameraScript();
+		cube.addComponent(&freeFlightScript);
 		
 		// Assign scene to game
 		GameManager::instance()->setScene(&scene);

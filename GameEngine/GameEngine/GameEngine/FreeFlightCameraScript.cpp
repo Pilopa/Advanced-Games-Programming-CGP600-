@@ -14,8 +14,7 @@ void FreeFlightCameraScript::update()
 
 	if (InputManager::instance()->getKey(KEY_W)) {
 
-		DirectX::XMVECTOR movementVector = GameManager::instance()->getScene()->getActiveCamera()
-			->getGameObject()->getTransform()->getLocalDirectionalVector();
+		DirectX::XMVECTOR movementVector = getGameObject()->getTransform()->getLocalDirectionalVector();
 
 		movementVector.m128_f32[0] *= 5.0F * (float)GameManager::instance()->getDeltaTime();
 		movementVector.m128_f32[1] *= 5.0F * (float)GameManager::instance()->getDeltaTime();
@@ -27,8 +26,7 @@ void FreeFlightCameraScript::update()
 
 	if (InputManager::instance()->getKey(KEY_S)) {
 
-		DirectX::XMVECTOR movementVector = GameManager::instance()->getScene()->getActiveCamera()
-			->getGameObject()->getTransform()->getLocalDirectionalVector();
+		DirectX::XMVECTOR movementVector = getGameObject()->getTransform()->getLocalDirectionalVector();
 
 		movementVector.m128_f32[0] *= -5.0F * (float)GameManager::instance()->getDeltaTime();
 		movementVector.m128_f32[1] *= -5.0F * (float)GameManager::instance()->getDeltaTime();

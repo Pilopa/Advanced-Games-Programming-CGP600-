@@ -275,6 +275,9 @@
     <ClInclude Include="SphereCollider.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="DeferredDirectionalLightPixelShader.hlsl">
@@ -311,22 +314,13 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <Object Include="cube.obj">
-      <Filter>Resource Files</Filter>
-    </Object>
-    <Object Include="FinalBaseMesh.obj">
-      <Filter>Resource Files</Filter>
-    </Object>
-    <Object Include="candlestick.obj">
-      <Filter>Resource Files</Filter>
-    </Object>
-    <Object Include="sphere.obj">
-      <Filter>Resource Files</Filter>
-    </Object>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Header.hlsli">
       <Filter>Resource Files</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="sphere.obj">
+      <Filter>Resource Files</Filter>
+    </Object>
   </ItemGroup>
 </Project>

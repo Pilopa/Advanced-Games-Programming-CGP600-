@@ -2,7 +2,7 @@
 
 #include "Component.h"
 
-GameObject* Component::getGameObject()
+GameObject* Component::getGameObject() const
 {
 	return gameObject;
 }

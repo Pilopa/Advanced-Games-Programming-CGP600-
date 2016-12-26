@@ -2,17 +2,22 @@
 
 #include "Collider.h"
 #include "Collision.h"
-#include "CollisionManager.h"
 
 void Collider::awake() {
-	CollisionManager::instance()->registerCollider(this);
+	manager->add(this);
 }
 
 void Collider::shutdown()
 {
-	CollisionManager::instance()->deregisterCollider(this);
+	manager->remove(this);
 }
 
 void Collider::update() {
 	// Do nothing
+}
+
+
+Collider::Collider(Manager<Collider>* manager)
+{
+	this->manager = manager;
 }
