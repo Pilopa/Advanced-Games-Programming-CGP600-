@@ -33,3 +33,7 @@ class Texture;
 class Transform;
 struct Vertex;
 class Window;
+class UIComponent;
+class UIManager;
+class TextComponent;
+class SpriteComponent;

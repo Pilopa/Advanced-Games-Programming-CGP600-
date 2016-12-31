@@ -5,6 +5,7 @@
 #include <d3d11_1.h>
 #include <DirectXMath.h>
 #include "ClassDef.h"
+#include "SpriteBatch.h"
 
 #define DEFAULT_HEIGHT_VALUE 8
 #define BUFFER_COUNT 3 // [color, normals, position]
@@ -21,6 +22,7 @@ class GraphicsManager {
 		ID3D11DeviceContext* getDeviceContext();
 		ID3D11ShaderResourceView* getDeferredShaderResourceView(int index);
 		ID3D11BlendState1* getAdditiveBlendState();
+		DirectX::SpriteBatch* getSpriteBatch();
 		void shutdown();
 
 		static bool isInitialized();
@@ -28,7 +30,6 @@ class GraphicsManager {
 		static const float DEFAULT_BACKGROUND_COLOR[];
 
 	private:
-
 		GraphicsManager();
 		HRESULT setupBackbuffer(UINT width, UINT height, UINT sampleCount);
 		HRESULT setupRenderTargetView();
@@ -47,6 +48,7 @@ class GraphicsManager {
 		ID3D11RenderTargetView* deferredRenderTargetViews[BUFFER_COUNT];
 		ID3D11ShaderResourceView* deferredShaderResources[BUFFER_COUNT];
 
+		DirectX::SpriteBatch* spriteBatch;
 		Mesh* renderQuad = nullptr;
 		ID3D11RenderTargetView* backBufferRenderTargetView = nullptr;
 		ID3D11Device* device = nullptr;

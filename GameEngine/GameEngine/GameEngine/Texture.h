@@ -9,9 +9,11 @@ class Texture : public Resource {
 		Texture(WCHAR* path);
 
 		ID3D11ShaderResourceView* getTextureView();
+		D3D11_TEXTURE2D_DESC* getTextureDescription();
 
 	protected:
 		Texture();
 
-		ID3D11ShaderResourceView* textureView;
+		ID3D11ShaderResourceView* textureView = nullptr;
+		D3D11_TEXTURE2D_DESC textureDesc;
 };

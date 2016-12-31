@@ -25,6 +25,9 @@
 #include "PointLight.h"
 #include "SphereCollider.h"
 #include "CollisionManager.h"
+#include "BoxCollider.h"
+#include "TextComponent.h"
+#include "ImageComponent.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -71,21 +74,30 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		MeshRenderer cubeRenderer = MeshRenderer(cubeMesh, &cubeMaterial);
 		
 		GameObject cube = GameObject();
-		SphereCollider collider1 = SphereCollider(CollisionManager::instance(), { 0.0F, 0.0F, 0.0F }, 1.0f);
+		auto collider1 = BoxCollider(CollisionManager::instance(), { 0.0F, 0.0F, 0.0F }, false, { 1.0f, 1.0f, 1.0f });
 		cube.getTransform()->localPosition->x = 0.0F;
 		cube.getTransform()->localPosition->y = 0.0F;
-		cube.getTransform()->localPosition->z = 5.0F;
+		cube.getTransform()->localPosition->z = 0.0F;
+		cube.getTransform()->localRotation->yaw = 90.0f;
 		cube.addComponent(&cubeRenderer);
 		cube.addComponent(&collider1);
 
 		GameObject cube2 = GameObject();
-		SphereCollider collider2 = SphereCollider(CollisionManager::instance(), { 0.0F, 0.0F, 0.0F }, 1.0f);
-		cube2.getTransform()->localPosition->x = -3.0F;
-		cube2.getTransform()->localPosition->y = -1.0F;
+		auto collider2 = BoxCollider(CollisionManager::instance(), { 0.0F, 0.0F, 0.0F }, false, { 1.0f, 1.0f, 1.0f });
+		cube2.getTransform()->localPosition->x = -5.0F;
+		cube2.getTransform()->localPosition->y = 0.0F;
 		cube2.getTransform()->localPosition->z = 0.0F;
 		MeshRenderer cube2Renderer = MeshRenderer(cubeMesh, &cubeMaterial);
 		cube2.addComponent(&cube2Renderer);
 		cube2.addComponent(&collider2);
+
+		GameObject HUD = GameObject();
+
+		TextComponent textComponent = TextComponent({ 400.0f, 25.0f }, FileManager::loadFont(L"courier_new.spritefont"), 15.0f, DirectX::Colors::Red, L"Ich bin ein langer text!");
+		HUD.addComponent(&textComponent);
+
+		ImageComponent imageComponent = ImageComponent({0.0f, 0.0f}, &cubeTexture);
+		HUD.addComponent(&imageComponent);
 
 		scene.setAmbientLight(&ambientLight);
 		scene.setActiveCamera(&mainCamera);
@@ -93,6 +105,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		scene.addRootObject(&cube);
 		scene.addRootObject(&cube2);
 		scene.addRootObject(&sunGameObject);
+		scene.addRootObject(&HUD);
 
 		// Free flight script
 		FreeFlightCameraScript freeFlightScript = FreeFlightCameraScript();

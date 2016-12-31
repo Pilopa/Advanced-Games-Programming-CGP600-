@@ -88,7 +88,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)DirectXTK\Inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -130,6 +130,7 @@
     <ClCompile Include="AmbientLight.cpp" />
     <ClCompile Include="AmbientLightShaderClass.cpp" />
     <ClCompile Include="ApplicationManager.cpp" />
+    <ClCompile Include="BoxCollider.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Collider.cpp" />
     <ClCompile Include="Collision.cpp" />
@@ -143,6 +144,7 @@
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GraphicsManager.cpp" />
+    <ClCompile Include="ImageComponent.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="LightingManager.cpp" />
@@ -157,21 +159,29 @@
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderClass.cpp" />
+    <ClCompile Include="Simplex.cpp" />
     <ClCompile Include="SkyboxShaderClass.cpp" />
     <ClCompile Include="SphereCollider.cpp" />
+    <ClCompile Include="TextComponent.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Texture3D.cpp" />
     <ClCompile Include="Transform.cpp" />
+    <ClCompile Include="UIComponent.cpp" />
+    <ClCompile Include="UIManager.cpp" />
     <ClCompile Include="VertexShader.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\DirectXTex\DDSTextureLoader\DDSTextureLoader.h" />
     <ClInclude Include="..\DirectXTex\WICTextureLoader\WICTextureLoader.h" />
+    <ClInclude Include="BoxCollider.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="CustomScript.h" />
+    <ClInclude Include="ImageComponent.h" />
     <ClInclude Include="Manager.h" />
+    <ClInclude Include="Simplex.h" />
     <ClInclude Include="SphereCollider.h" />
+    <ClInclude Include="TextComponent.h" />
     <ClInclude Include="Texture3D.h" />
     <ClInclude Include="AmbientLight.h" />
     <ClInclude Include="AmbientLightShaderClass.h" />
@@ -209,6 +219,8 @@
     <ClInclude Include="SpotLight.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Transform.h" />
+    <ClInclude Include="UIComponent.h" />
+    <ClInclude Include="UIManager.h" />
     <ClInclude Include="Utility.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="VertexShader.h" />
@@ -278,17 +290,18 @@
     <Image Include="Skybox.dds" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="courier_new.spritefont" />
     <None Include="Header.hlsli" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\DirectXTex\DirectXTex_Desktop_2015.vcxproj">
-      <Project>{371b9fa9-4c90-4ac6-a123-aced756d6c77}</Project>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Object Include="sphere.obj">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </Object>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DirectXTK\DirectXTK_Desktop_2015.vcxproj">
+      <Project>{e0b52ae7-e160-4d32-bf3f-910b785e5a8e}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

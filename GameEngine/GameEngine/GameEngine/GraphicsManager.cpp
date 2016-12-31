@@ -4,6 +4,7 @@
 #include "GraphicsManager.h"
 #include "ApplicationManager.h"
 #include "LightingManager.h"
+#include "UIManager.h"
 #include "Renderer.h"
 #include "MeshRenderer.h"
 #include "Mesh.h"
@@ -182,6 +183,9 @@ GraphicsManager::GraphicsManager()
 	BlendState.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	device->QueryInterface(__uuidof(ID3D11Device1), (void **) &pDevice);
 	pDevice->CreateBlendState1(&BlendState, &additiveBlendState);
+
+	// Setup Sprite Batch
+	spriteBatch = new DirectX::SpriteBatch(deviceContext);
 
 	// Setup the rest
 
@@ -544,7 +548,7 @@ void GraphicsManager::renderFrame()
 	LightingManager::instance()->render();
 
 	// Render UI
-	// TODO: implement ui rendering!
+	UIManager::instance()->render();
 
 	// Re-enable zbuffer
 	enableZBuffer();
@@ -641,6 +645,11 @@ ID3D11ShaderResourceView * GraphicsManager::getDeferredShaderResourceView(int in
 ID3D11BlendState1 * GraphicsManager::getAdditiveBlendState()
 {
 	return additiveBlendState;
+}
+
+DirectX::SpriteBatch* GraphicsManager::getSpriteBatch()
+{
+	return spriteBatch;
 }
 
 void GraphicsManager::shutdown()

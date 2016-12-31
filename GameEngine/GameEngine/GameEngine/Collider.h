@@ -10,7 +10,7 @@
 class Collider : public Component {
 
 	public: 
-		Collider(Manager<Collider>* manager);
+		Collider(Manager<Collider>* manager, DirectX::XMVECTOR centerOffset, bool isTrigger);
 
 		void update(); // Overrides Component::update
 		void awake(); // Overrides Component::awake
@@ -21,7 +21,14 @@ class Collider : public Component {
 		*/
 		virtual void onCollision(Collision* collision) = 0;
 		virtual std::set<DirectX::XMVECTOR, VectorCompare>* checkCollision(Collider* other) = 0;
+		virtual DirectX::XMVECTOR getFarthestVertexInDirection(DirectX::XMVECTOR direction);
+
+		DirectX::XMVECTOR getCenterOffset();
+		bool isTrigger();
 
 	private:
 		Manager<Collider>* manager;
+		DirectX::XMVECTOR centerOffset = { 0.0F, 0.0F, 0.0F };
+		bool trigger = false;
+		
 };

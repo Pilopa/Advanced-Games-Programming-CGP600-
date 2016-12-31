@@ -1,5 +1,6 @@
 #pragma once
 
+// Tests if the given pointer points to a subclass of the given Base class
 template<typename Base, typename T>
 inline bool instanceof(const T *ptr) {
 	return dynamic_cast<const Base*>(ptr) != nullptr;
@@ -27,3 +28,11 @@ struct VectorCompare
 		return true;
 	}
 };
+
+#define TripleProduct(a, b, c) DirectX::XMVector3Cross(DirectX::XMVector3Cross(a, b), c)
+#define Vector(value) { value, value, value, 1.0f }
+
+// === Define unique vectors ===
+
+#define ZERO_VECTOR Vector(0.0f)
+#define MAX_VECTOR Vector(FLT_MAX)
