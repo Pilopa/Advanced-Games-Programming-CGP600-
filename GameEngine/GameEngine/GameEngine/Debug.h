@@ -4,4 +4,4 @@
 #include <string>
 
 #define LogError(message) OutputDebugStringA(message); //OutputDebugStringA("\n");
-#define LogInfo(message) OutputDebugStringA(message); //OutputDebugStringA("\n");
+#define LogInfo(message) OutputDebugStringA(message); OutputDebugStringA("\n");

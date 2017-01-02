@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SphereCollider.h"
+#include "BoxCollider.h"
 #include "Collision.h"
 #include "Utility.h"
 #include "GameObject.h"
@@ -78,6 +79,26 @@ std::set<DirectX::XMVECTOR, VectorCompare>* SphereCollider::checkCollision(Colli
 			// Generate point of impact
 			return result;
 		}
+	} else if (instanceof<BoxCollider>(other)) {
+		auto otherBoxCollider = (BoxCollider*)other;
+
+		auto dimensions = otherBoxCollider->getDimensions();
+		auto minX = DirectX::XMVectorAdd(otherPos, { -dimensions.m128_f32[0], 0.0f, 0.0f, 0.0f }).m128_f32[0];
+		auto maxX = DirectX::XMVectorAdd(otherPos, { dimensions.m128_f32[0], 0.0f, 0.0f, 0.0f }).m128_f32[0];
+		auto minY = DirectX::XMVectorAdd(otherPos, { 0.0f, -dimensions.m128_f32[1], 0.0f, 0.0f }).m128_f32[1];
+		auto maxY = DirectX::XMVectorAdd(otherPos, { 0.0f, dimensions.m128_f32[1], 0.0f, 0.0f }).m128_f32[1];
+		auto minZ = DirectX::XMVectorAdd(otherPos, { 0.0f, 0.0f, -dimensions.m128_f32[2], 0.0f }).m128_f32[2];
+		auto maxZ = DirectX::XMVectorAdd(otherPos, { 0.0f, 0.0f, dimensions.m128_f32[2], 0.0f }).m128_f32[2];
+
+		auto x = max(minX, currentPos.m128_f32[0], maxX);
+		auto y = max(minY, currentPos.m128_f32[1], maxY);
+		auto z = max(minZ, currentPos.m128_f32[2], maxZ);
+
+		auto distance = sqrt((x - currentPos.m128_f32[0]) * (x - currentPos.m128_f32[0]) +
+			(y - currentPos.m128_f32[1]) * (y - currentPos.m128_f32[1]) +
+			(z - currentPos.m128_f32[2]) * (z - currentPos.m128_f32[2]));
+
+		return (distance < getRadius()) ? new std::set<DirectX::XMVECTOR, VectorCompare>() : nullptr;
 	}
 
 	return nullptr;

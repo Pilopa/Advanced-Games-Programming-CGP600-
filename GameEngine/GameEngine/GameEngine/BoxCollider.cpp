@@ -1,6 +1,7 @@
 #pragma once
 
 #include "BoxCollider.h"
+#include "SphereCollider.h"
 #include "Collision.h"
 #include "Utility.h"
 #include "GameObject.h"
@@ -100,6 +101,7 @@ void BoxCollider::onCollision(Collision * collision)
 	LogInfo("Collision!");
 }
 
+// The algorithm used currently expects AABBs
 std::set<DirectX::XMVECTOR, VectorCompare>* BoxCollider::checkCollision(Collider * other)
 {
 	
@@ -110,42 +112,50 @@ std::set<DirectX::XMVECTOR, VectorCompare>* BoxCollider::checkCollision(Collider
 	DirectX::XMVECTOR currentPos = getCurrentPosition();
 	DirectX::XMVECTOR otherPos = DirectX::XMVectorAdd(other->getGameObject()->getTransform()->getWorldPositionVector(), other->getCenterOffset());
 
-	// Setup points of impact collection
-	auto pointsOfImpact = new std::set<DirectX::XMVECTOR, VectorCompare>();
+	// The GJK algorithm is not being completely implemented and therefore not used for collision checks
+	// // Initialize the simplex object
+	//auto simplex = Simplex(this, other, DirectX::XMVectorSubtract(otherPos, currentPos));
 
-	// Initialize origin value
-	DirectX::XMVECTOR origin = ZERO_VECTOR;
+	//auto result = simplex.check();
 
-	// Initialize the simplex object
-	auto simplex = Simplex();
+	//delete &simplex;
 
-	// Initialize direction with difference of both collider's positions
-	DirectX::XMVECTOR direction = DirectX::XMVectorSubtract(otherPos, currentPos);
+	auto dimensions = getDimensions();
+	auto minX = DirectX::XMVectorAdd(currentPos, { -dimensions.m128_f32[0], 0.0f, 0.0f, 0.0f }).m128_f32[0];
+	auto maxX = DirectX::XMVectorAdd(currentPos, { dimensions.m128_f32[0], 0.0f, 0.0f, 0.0f }).m128_f32[0];
+	auto minY = DirectX::XMVectorAdd(currentPos, { 0.0f, -dimensions.m128_f32[1], 0.0f, 0.0f }).m128_f32[1];
+	auto maxY = DirectX::XMVectorAdd(currentPos, { 0.0f, dimensions.m128_f32[1], 0.0f, 0.0f }).m128_f32[1];
+	auto minZ = DirectX::XMVectorAdd(currentPos, { 0.0f, 0.0f, -dimensions.m128_f32[2], 0.0f }).m128_f32[2];
+	auto maxZ = DirectX::XMVectorAdd(currentPos, { 0.0f, 0.0f, dimensions.m128_f32[2], 0.0f }).m128_f32[2];
 
-	// Input first point
-	auto p = Simplex::Support(this, other, direction);
-	simplex.add(p);
+	if (instanceof<BoxCollider>(other)) {
+		auto otherBoxCollider = (BoxCollider*)other;
 
-	// Negate the direction for the next point
-	direction = DirectX::XMVectorNegate(direction);
+		auto otherDimensions = otherBoxCollider->getDimensions();
+		auto otherMinX = DirectX::XMVectorAdd(otherPos, { -otherDimensions.m128_f32[0], 0.0f, 0.0f, 0.0f }).m128_f32[0];
+		auto otherMaxX = DirectX::XMVectorAdd(otherPos, { otherDimensions.m128_f32[0], 0.0f, 0.0f, 0.0f }).m128_f32[0];
+		auto otherMinY = DirectX::XMVectorAdd(otherPos, { 0.0f, -otherDimensions.m128_f32[1], 0.0f, 0.0f }).m128_f32[1];
+		auto otherMaxY = DirectX::XMVectorAdd(otherPos, { 0.0f, otherDimensions.m128_f32[1], 0.0f, 0.0f }).m128_f32[1];
+		auto otherMinZ = DirectX::XMVectorAdd(otherPos, { 0.0f, 0.0f, -otherDimensions.m128_f32[2], 0.0f }).m128_f32[2];
+		auto otherMaxZ = DirectX::XMVectorAdd(otherPos, { 0.0f, 0.0f, otherDimensions.m128_f32[2], 0.0f }).m128_f32[2];
 
-	// Continue with the iterative algorithm, check if the point past the origin
-	while (DirectX::XMVector3GreaterOrEqual(p = DirectX::XMVector3Dot(Simplex::Support(this, other, direction), direction), ZERO_VECTOR)) {
-
-		// Add a new point to the simplex that has not been terminated yet
-		simplex.add(p);
-
-		// Check if the simplex contains the origin and updates the direction accordingly
-		if (simplex.containsOrigin(&direction)) {
-
-			// If yes, there definitely is a collision:
-			// Start EPA
-			LogInfo("YES!");
-		}
+		return (otherMinX <= maxX && otherMaxX >= minX) &&
+			(otherMinY <= maxY && otherMaxY >= minY) &&
+			(otherMinZ <= maxZ && otherMaxZ >= minZ) ? new std::set<DirectX::XMVECTOR, VectorCompare>() : nullptr;
 	}
+	else if (instanceof<SphereCollider>(other)) {
+		auto otherSphereCollider = (SphereCollider*)other;
 
-	// Free memory
-	delete pointsOfImpact;
+		auto x = max(minX, otherPos.m128_f32[0], maxX);
+		auto y = max(minY, otherPos.m128_f32[1], maxY);
+		auto z = max(minZ, otherPos.m128_f32[2], maxZ);
+
+		auto distance = sqrt((x - otherPos.m128_f32[0]) * (x - otherPos.m128_f32[0]) +
+			(y - otherPos.m128_f32[1]) * (y - otherPos.m128_f32[1]) +
+			(z - otherPos.m128_f32[2]) * (z - otherPos.m128_f32[2]));
+
+		return (distance < otherSphereCollider->getRadius()) ? new std::set<DirectX::XMVECTOR, VectorCompare>() : nullptr;
+	}
 
 	return nullptr;
 }

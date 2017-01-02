@@ -3,6 +3,7 @@
 #include <algorithm>
 #include "Simplex.h"
 #include "Collider.h"
+#include "Debug.h"
 
 DirectX::XMVECTOR Simplex::Support(Collider * a, Collider * b, DirectX::XMVECTOR direction)
 {
@@ -134,4 +135,47 @@ DirectX::XMVECTOR Simplex::C()
 void Simplex::remove(DirectX::XMVECTOR vector)
 {
 	points.erase(std::remove_if(points.begin(), points.end(), VectorEquals(vector)), points.end());
+}
+
+Simplex::Simplex(Collider * a, Collider * b, DirectX::XMVECTOR initialDirection)
+{
+	cA = a;
+	cB = b;
+	direction = initialDirection;
+}
+
+std::set<DirectX::XMVECTOR, VectorCompare>* Simplex::check()
+{
+	// Setup points of impact collection
+	auto pointsOfImpact = new std::set<DirectX::XMVECTOR, VectorCompare>();
+
+	// Initialize origin value
+	DirectX::XMVECTOR origin = ZERO_VECTOR;
+
+	// Input first point
+	auto p = Simplex::Support(cA, cB, direction);
+	add(p);
+
+	// Negate the direction for the next point
+	direction = DirectX::XMVectorNegate(direction);
+
+	// Continue with the iterative algorithm, check if the point past the origin
+	while (DirectX::XMVector3GreaterOrEqual(p = DirectX::XMVector3Dot(Simplex::Support(cA, cB, direction), direction), ZERO_VECTOR)) {
+
+		// Add a new point to the simplex that has not been terminated yet
+		add(p);
+
+		// Check if the simplex contains the origin and updates the direction accordingly
+		if (containsOrigin(&direction)) {
+
+			// If yes, there definitely is a collision:
+			// Start EPA
+			LogInfo("YES!");
+		}
+	}
+
+	// Free memory
+	delete pointsOfImpact;
+
+	return nullptr;
 }
