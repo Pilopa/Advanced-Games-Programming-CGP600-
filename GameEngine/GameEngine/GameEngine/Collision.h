@@ -1,20 +1,23 @@
 #pragma once
 
 #include <DirectXMath.h>
-#include <set>
 #include "Utility.h"
 #include "ClassDef.h"
+
+using namespace DirectX;
 
 class Collision {
 
 	public:
-		Collision(Collider* other, std::set<DirectX::XMVECTOR, VectorCompare>* pointOfImpact);
+		Collision(Collider* other, XMVECTOR minimumTranslationVector, float penetrationAmount);
 
 		Collider* getOther();
-		std::set<DirectX::XMVECTOR, VectorCompare>* getPointsOfImpact();
+		XMVECTOR getMinimumTranslationVector();
+		float getPenetrationAmount();
 
 	private:
 		Collider* other;
-		std::set<DirectX::XMVECTOR, VectorCompare>* pointsOfImpact;
+		XMVECTOR minimumTranslationVector;
+		float penetrationAmount;
 
 };

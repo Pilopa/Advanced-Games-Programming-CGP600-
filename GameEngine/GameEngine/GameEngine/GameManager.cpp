@@ -9,6 +9,8 @@
 #include "Debug.h"
 #include "Scene.h"
 
+using namespace std::chrono;
+
 GameManager::GameManager()
 {
 
@@ -30,15 +32,19 @@ void GameManager::executeGameLoopTick()
 
 	// Calculate deltaTime
 	long long tmpTimer = timer;
-	timer = std::chrono::high_resolution_clock::now().time_since_epoch().count();
-	deltaTime = (timer - tmpTimer) / 1000000.0;
-	//LogInfo((std::string("deltaTime: ") + std::to_string(this->getDeltaTime()) + std::string("\n")).c_str());
-
-	// Do collision checks
-	CollisionManager::instance()->performCollisionCheck();
+	if (timer == 0) {
+		timer = duration_cast<milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+	}
+	else {
+		timer = duration_cast<milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+		deltaTime = (timer - tmpTimer);
+	}
 
 	// Call Update if there is an active scene
 	if (scene) scene->update();
+
+	// Do collision checks
+	CollisionManager::instance()->performCollisionCheck();
 
 	// Render next Frame
 	if (GraphicsManager::instance()) GraphicsManager::instance()->renderFrame();

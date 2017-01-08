@@ -1,6 +1,8 @@
 #pragma once
 
 #include "GameObject.h"
+#include "CustomScript.h"
+#include "Scene.h"
 
 GameObject::GameObject()
 {
@@ -47,6 +49,12 @@ void GameObject::shutdown()
 	}
 }
 
+void GameObject::destroy()
+{
+	// Remove from game loop
+	getScene()->removeRootObject(this);
+}
+
 GameObject* GameObject::getParent() 
 {
 	return parent;
@@ -60,8 +68,17 @@ void GameObject::setParent(GameObject* parent)
 	// Assign parent value
 	this->parent = parent;
 
-	// Add this object to the new parent's child list
-	if (this->parent) this->parent->children.insert(this);
+	// If new parent is not nullptr
+	if (this->parent) {
+
+		// Set this scene to parent's scene
+		this->scene = this->parent->getScene();
+
+		// Add this object to the new parent's child list
+		this->parent->children.insert(this);
+
+	}
+	else this->scene = nullptr;
 }
 
 void GameObject::addComponent(Component * component)
@@ -85,7 +102,17 @@ void GameObject::setScene(Scene * scene)
 	}
 }
 
-Transform * GameObject::getTransform() 
+void GameObject::onCollision(Collider * first, Collision * collision)
+{
+	// Call Custom Scripts to handle collision
+	for (std::set<Component*>::const_iterator iterator = components.begin(), end = components.end(); iterator != end; ++iterator) {
+		if (instanceof<CustomScript>(*iterator)) {
+			((CustomScript*)*iterator)->onCollision(first, collision);
+		}
+	}
+}
+
+Transform * GameObject::getTransform()
 {
 	return &transform;
 }

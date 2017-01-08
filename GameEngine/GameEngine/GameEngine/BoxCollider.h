@@ -7,12 +7,15 @@ class BoxCollider : public Collider {
 
 	public:
 		void onCollision(Collision* collision); // Overrides Collider::onCollision 
-		std::set<DirectX::XMVECTOR, VectorCompare>* checkCollision(Collider* other); // Overrides Collider::checkCollision 
+		bool checkCollision(Collider* other, XMVECTOR& outMtv, float& outPenetration); // Overrides Collider::checkCollision
 
 		DirectX::XMVECTOR getDimensions();
 		BoxCollider(Manager<Collider>* manager, DirectX::XMVECTOR centerOffset, bool isTrigger, DirectX::XMVECTOR size);
 
 	private:
+		// Uses Separating Axis Theorem (SAT)
+		bool testAxisWithAABB(XMVECTOR axis, float minA, float maxA, float minB, float maxB, XMVECTOR& outMtv, float& outPenetration);
+
 		DirectX::XMVECTOR dimensions = ZERO_VECTOR;
 
 		std::vector<DirectX::XMVECTOR>* getColliderVertices();

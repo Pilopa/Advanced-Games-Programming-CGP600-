@@ -31,6 +31,9 @@ struct VectorCompare
 
 #define TripleProduct(a, b, c) DirectX::XMVector3Cross(DirectX::XMVector3Cross(a, b), c)
 #define Vector(value) { value, value, value, 1.0f }
+#define XVector { 1.0f, 0.0f, 0.0f, 1.0f }
+#define YVector { 0.0f, 1.0f, 0.0f, 1.0f }
+#define ZVector { 0.0f, 0.0f, 1.0f, 1.0f }
 
 // === Define unique vectors ===
 

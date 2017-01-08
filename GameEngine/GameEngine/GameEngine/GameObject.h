@@ -13,6 +13,10 @@ class GameObject {
 		void update();
 		void awake();
 		void shutdown();
+		void destroy();
+
+		// Called when one of the game object's colliders collides with another
+		virtual void onCollision(Collider* first, Collision* collision);
 
 		Transform* getTransform();
 		GameObject* getParent();

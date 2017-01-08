@@ -68,3 +68,8 @@ void FreeFlightCameraScript::shutdown()
 {
 	// Do nothing
 }
+
+void FreeFlightCameraScript::onCollision(Collider * first, Collision * collision)
+{
+	// Do nothing
+}

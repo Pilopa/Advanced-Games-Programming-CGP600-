@@ -52,20 +52,26 @@ void CollisionManager::forCollider(Collider * collider)
 		Collider* other = pair.first;
 
 		// Dont collide with yourself
-		if (collider == other) continue;
+		if (collider->getGameObject() == other->getGameObject()) continue;
+
+		// Initialize collision values
+		float mtvDistance;
+		XMVECTOR mtvAxis;
 
 		// Check collision
-		std::set<DirectX::XMVECTOR, VectorCompare>* pointsOfImpact = collider->checkCollision(other);
-		if (pointsOfImpact != nullptr) {
+		if (collider->checkCollision(other, mtvAxis, mtvDistance)) {
+
 			// Generate collision object if a collision took place
-			Collision* collision = new Collision(other, pointsOfImpact);
+			Collision* collision = new Collision(other, mtvAxis, mtvDistance);
 
 			// Handle the collision
 			collider->onCollision(collision);
 
+			// Tell the game object to forward the collision to handlers
+			collider->getGameObject()->onCollision(collider, collision);
+
 			// Free memory
 			delete collision;
-			delete pointsOfImpact;
 		}
 	}
 }

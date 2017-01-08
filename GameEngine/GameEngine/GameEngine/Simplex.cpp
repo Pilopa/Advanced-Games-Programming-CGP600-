@@ -134,7 +134,7 @@ DirectX::XMVECTOR Simplex::C()
 
 void Simplex::remove(DirectX::XMVECTOR vector)
 {
-	points.erase(std::remove_if(points.begin(), points.end(), VectorEquals(vector)), points.end());
+	// points.erase(std::remove_if(points.begin(), points.end(), VectorEquals(vector)), points.end()); // TODO: Parameter alignment error
 }
 
 Simplex::Simplex(Collider * a, Collider * b, DirectX::XMVECTOR initialDirection)

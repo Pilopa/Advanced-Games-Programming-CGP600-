@@ -150,6 +150,33 @@
     <ClCompile Include="ImageComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CustomScript.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerControllerScript.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Rigidbody.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProjectileScript.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TankBehaviorScript.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProjectilePrefab.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyBehaviorScript.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyPrefab.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ApplicationManager.h">
@@ -314,6 +341,33 @@
     <ClInclude Include="ImageComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SceneLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerControllerScript.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Rigidbody.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TankBehaviorScript.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ProjectileScript.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ProjectilePrefab.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Prefab.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyBehaviorScript.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyPrefab.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="DeferredDirectionalLightPixelShader.hlsl">
@@ -348,6 +402,9 @@
     <Image Include="Skybox.dds">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="concrete.JPG">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="Header.hlsli">
@@ -359,6 +416,18 @@
   </ItemGroup>
   <ItemGroup>
     <Object Include="sphere.obj">
+      <Filter>Resource Files</Filter>
+    </Object>
+    <Object Include="bt-sv.obj">
+      <Filter>Resource Files</Filter>
+    </Object>
+    <Object Include="plane.obj">
+      <Filter>Resource Files</Filter>
+    </Object>
+    <Object Include="projectile.obj">
+      <Filter>Resource Files</Filter>
+    </Object>
+    <Object Include="turret.obj">
       <Filter>Resource Files</Filter>
     </Object>
   </ItemGroup>

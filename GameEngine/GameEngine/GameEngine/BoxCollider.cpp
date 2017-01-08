@@ -1,5 +1,6 @@
 #pragma once
 
+#include <limits>
 #include "BoxCollider.h"
 #include "SphereCollider.h"
 #include "Collision.h"
@@ -8,10 +9,43 @@
 #include "Transform.h"
 #include "Debug.h"
 #include "Simplex.h"
+#include "Rigidbody.h"
 
 BoxCollider::BoxCollider(Manager<Collider>* manager, DirectX::XMVECTOR centerOffset, bool isTrigger, DirectX::XMVECTOR size) : Collider(manager, centerOffset, isTrigger)
 {
 	this->dimensions = size;
+}
+
+bool BoxCollider::testAxisWithAABB(XMVECTOR axis, float minA, float maxA, float minB, float maxB, XMVECTOR& outMtv, float& outPenetration)
+{
+	float axisLengthSquared = XMVector3Dot(axis, axis).m128_f32[0];
+
+	// If axis is degenerate then ignore
+	if (axisLengthSquared < 1.0e-8f) return true;
+
+	// Calculate possible overlap ranges
+	float d0 = (maxB - minA); // left
+	float d1 = (maxA - minB); // right
+
+	// Check intervals for intersection
+	if (d0 <= 0.0f || d1 <= 0.0f) return false;
+
+	// Check on which side the overlap is
+	float overlap = (d0 < d1) ? d0 : -d1;
+
+	// Calculate mtd vector
+	XMVECTOR sep = XMVectorMultiply(axis, Vector(overlap / axisLengthSquared));
+
+	// Squared length of mtg vector
+	float sepLengthSquared = XMVector3Dot(sep, sep).m128_f32[0];
+
+	// Update mtv if it is the new smallest translation distance
+	if (sepLengthSquared < outPenetration) {
+		outPenetration = sepLengthSquared;
+		outMtv = sep;
+	}
+
+	return true;
 }
 
 std::vector<DirectX::XMVECTOR>* BoxCollider::getColliderVertices()
@@ -98,13 +132,24 @@ DirectX::XMVECTOR BoxCollider::getFarthestVertexInDirection(DirectX::XMVECTOR di
 
 void BoxCollider::onCollision(Collision * collision)
 {
-	LogInfo("Collision!");
+	// Do not perform actual collision with trigger colliders
+	if (collision->getOther()->isTrigger() || isTrigger()) return;
+
+	// Check collider's game object for rigidbody to determine reaction to collision
+	Rigidbody* rigidbody = getGameObject()->getComponent<Rigidbody>();
+
+	if (rigidbody != nullptr) {
+		rigidbody->reset(collision->getMinimumTranslationVector()); // Stop rigidbody
+	}
+
+	// Push collider back given amount
+	this->getGameObject()->getTransform()->translate(XMVectorMultiply(collision->getMinimumTranslationVector(), Vector(collision->getPenetrationAmount())));
+
 }
 
 // The algorithm used currently expects AABBs
-std::set<DirectX::XMVECTOR, VectorCompare>* BoxCollider::checkCollision(Collider * other)
+bool BoxCollider::checkCollision(Collider * other, XMVECTOR& mtv, float& penetration)
 {
-	
 	// Colliding with oneself makes no sense.
 	if (other == this) return nullptr;
 
@@ -112,14 +157,7 @@ std::set<DirectX::XMVECTOR, VectorCompare>* BoxCollider::checkCollision(Collider
 	DirectX::XMVECTOR currentPos = getCurrentPosition();
 	DirectX::XMVECTOR otherPos = DirectX::XMVectorAdd(other->getGameObject()->getTransform()->getWorldPositionVector(), other->getCenterOffset());
 
-	// The GJK algorithm is not being completely implemented and therefore not used for collision checks
-	// // Initialize the simplex object
-	//auto simplex = Simplex(this, other, DirectX::XMVectorSubtract(otherPos, currentPos));
-
-	//auto result = simplex.check();
-
-	//delete &simplex;
-
+	// Initialize own collider values
 	auto dimensions = getDimensions();
 	auto minX = DirectX::XMVectorAdd(currentPos, { -dimensions.m128_f32[0], 0.0f, 0.0f, 0.0f }).m128_f32[0];
 	auto maxX = DirectX::XMVectorAdd(currentPos, { dimensions.m128_f32[0], 0.0f, 0.0f, 0.0f }).m128_f32[0];
@@ -129,8 +167,13 @@ std::set<DirectX::XMVECTOR, VectorCompare>* BoxCollider::checkCollision(Collider
 	auto maxZ = DirectX::XMVectorAdd(currentPos, { 0.0f, 0.0f, dimensions.m128_f32[2], 0.0f }).m128_f32[2];
 
 	if (instanceof<BoxCollider>(other)) {
-		auto otherBoxCollider = (BoxCollider*)other;
 
+		// Initialize collision values
+		float mtvDistance = FLT_MAX;
+		XMVECTOR mtvAxis;
+
+		// Initialize over collider values
+		auto otherBoxCollider = (BoxCollider*)other;
 		auto otherDimensions = otherBoxCollider->getDimensions();
 		auto otherMinX = DirectX::XMVectorAdd(otherPos, { -otherDimensions.m128_f32[0], 0.0f, 0.0f, 0.0f }).m128_f32[0];
 		auto otherMaxX = DirectX::XMVectorAdd(otherPos, { otherDimensions.m128_f32[0], 0.0f, 0.0f, 0.0f }).m128_f32[0];
@@ -139,25 +182,28 @@ std::set<DirectX::XMVECTOR, VectorCompare>* BoxCollider::checkCollision(Collider
 		auto otherMinZ = DirectX::XMVectorAdd(otherPos, { 0.0f, 0.0f, -otherDimensions.m128_f32[2], 0.0f }).m128_f32[2];
 		auto otherMaxZ = DirectX::XMVectorAdd(otherPos, { 0.0f, 0.0f, otherDimensions.m128_f32[2], 0.0f }).m128_f32[2];
 
-		return (otherMinX <= maxX && otherMaxX >= minX) &&
-			(otherMinY <= maxY && otherMaxY >= minY) &&
-			(otherMinZ <= maxZ && otherMaxZ >= minZ) ? new std::set<DirectX::XMVECTOR, VectorCompare>() : nullptr;
+		// Test X Axis
+		if (!testAxisWithAABB(XVector, minX, maxX, otherMinX, otherMaxX, mtvAxis, mtvDistance)) return false;
+
+		// Test Y Axis
+		if (!testAxisWithAABB(YVector, minY, maxY, otherMinY, otherMaxY, mtvAxis, mtvDistance)) return false;
+
+		// Test Z Axis
+		if (!testAxisWithAABB(ZVector, minZ, maxZ, otherMinZ, otherMaxZ, mtvAxis, mtvDistance)) return false;
+
+		// Calculate minimum translation vector
+		mtv = XMVector3Normalize(mtvAxis);
+
+		// Calculate penetration depth
+		penetration = sqrt(mtvDistance) * PENETRATION_INCREMENT;
+
+		// Collision successfully calculated
+		return true;
+
 	}
-	else if (instanceof<SphereCollider>(other)) {
-		auto otherSphereCollider = (SphereCollider*)other;
 
-		auto x = max(minX, otherPos.m128_f32[0], maxX);
-		auto y = max(minY, otherPos.m128_f32[1], maxY);
-		auto z = max(minZ, otherPos.m128_f32[2], maxZ);
-
-		auto distance = sqrt((x - otherPos.m128_f32[0]) * (x - otherPos.m128_f32[0]) +
-			(y - otherPos.m128_f32[1]) * (y - otherPos.m128_f32[1]) +
-			(z - otherPos.m128_f32[2]) * (z - otherPos.m128_f32[2]));
-
-		return (distance < otherSphereCollider->getRadius()) ? new std::set<DirectX::XMVECTOR, VectorCompare>() : nullptr;
-	}
-
-	return nullptr;
+	return false;
+	
 }
 
 DirectX::XMVECTOR BoxCollider::getDimensions()

@@ -20,7 +20,7 @@ void TextComponent::render()
 
 	DirectX::SimpleMath::Vector2 origin = DirectX::XMVectorDivide(font->MeasureString(text.c_str()), Vector(2.f));
 
-	font->DrawString(spriteBatch, text.c_str(), position, color, 0.f, origin);
+	font->DrawString(spriteBatch, text.c_str(), position, color, 0.f, origin, (float) fontSize / REFERENCE_FONT_SIZE);
 
 	spriteBatch->End();
 }

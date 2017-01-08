@@ -6,6 +6,8 @@
 #include "ClassDef.h"
 #include "Manager.h"
 
+using namespace DirectX;
+
 class CollisionManager : public Manager<Collider> {
 
 	public:
@@ -21,9 +23,8 @@ class CollisionManager : public Manager<Collider> {
 		}
 
 	private:
+
 		std::map<Collider*, DirectX::XMMATRIX> colliders;
-
 		void forCollider(Collider* collider);
-
 		static CollisionManager* s_instance;
 };

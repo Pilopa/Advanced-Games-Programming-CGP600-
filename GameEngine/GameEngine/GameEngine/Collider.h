@@ -7,6 +7,10 @@
 #include "Manager.h"
 #include "Utility.h"
 
+#define PENETRATION_INCREMENT 1.001f
+
+using namespace DirectX;
+
 class Collider : public Component {
 
 	public: 
@@ -20,7 +24,7 @@ class Collider : public Component {
 			It is not going to be reused after being inserted into this method.
 		*/
 		virtual void onCollision(Collision* collision) = 0;
-		virtual std::set<DirectX::XMVECTOR, VectorCompare>* checkCollision(Collider* other) = 0;
+		virtual bool checkCollision(Collider* other, XMVECTOR& outMtv, float& outPenetration) = 0;
 		virtual DirectX::XMVECTOR getFarthestVertexInDirection(DirectX::XMVECTOR direction);
 
 		DirectX::XMVECTOR getCenterOffset();

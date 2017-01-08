@@ -6,6 +6,8 @@
 #include "SimpleMath.h"
 #include "UIComponent.h"
 
+#define REFERENCE_FONT_SIZE 16.0f
+
 class TextComponent : public UIComponent {
 
 	public:
@@ -16,6 +18,6 @@ class TextComponent : public UIComponent {
 		DirectX::XMVECTOR color = DirectX::Colors::Black;
 		DirectX::SpriteFont* font;
 		std::wstring text = L"Text";
-		int fontSize;
+		int fontSize = REFERENCE_FONT_SIZE;
 
 };

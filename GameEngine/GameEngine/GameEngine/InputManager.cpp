@@ -151,6 +151,8 @@ KeyCode InputManager::convertVirtualKeyCode(long virtualKeyCode)
 			return KEY_ARROW_LEFT;
 		case VK_RIGHT:
 			return KEY_ARROW_RIGHT;
+		case VK_SPACE:
+			return SPACE;
 		default:
 			return KEY_UNDEFINED;
 	}
@@ -239,6 +241,8 @@ long InputManager::convertKeyCode(KeyCode keyCode)
 		return VK_LEFT;
 	case KEY_ARROW_RIGHT :
 		return VK_RIGHT;
+	case SPACE:
+		return VK_SPACE;
 	default:
 		return 0;
 	}

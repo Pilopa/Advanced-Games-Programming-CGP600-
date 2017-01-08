@@ -2,10 +2,11 @@
 
 #include "Collision.h"
 
-Collision::Collision(Collider * other, std::set<DirectX::XMVECTOR, VectorCompare>* pointsOfImpact)
+Collision::Collision(Collider* other, XMVECTOR minimumTranslationVector, float penetrationAmount)
 {
 	this->other = other;
-	this->pointsOfImpact = pointsOfImpact;
+	this->minimumTranslationVector = minimumTranslationVector;
+	this->penetrationAmount = penetrationAmount;
 }
 
 Collider * Collision::getOther()
@@ -13,7 +14,12 @@ Collider * Collision::getOther()
 	return other;
 }
 
-std::set<DirectX::XMVECTOR, VectorCompare>* Collision::getPointsOfImpact()
+XMVECTOR Collision::getMinimumTranslationVector()
 {
-	return pointsOfImpact;
+	return minimumTranslationVector;
+}
+
+float Collision::getPenetrationAmount()
+{
+	return penetrationAmount;
 }

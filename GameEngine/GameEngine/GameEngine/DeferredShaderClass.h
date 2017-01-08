@@ -8,6 +8,8 @@ class DeferredShaderClass : public ShaderClass {
 	public:
 		DeferredShaderClass();
 
+		static DeferredShaderClass* INSTANCE;
+
 		void prepare(GameObject* object); // Overrides ShaderClass::prepare
 
 	private:

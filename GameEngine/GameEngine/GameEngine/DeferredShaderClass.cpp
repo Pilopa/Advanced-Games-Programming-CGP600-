@@ -9,6 +9,8 @@
 #include "Scene.h"
 #include "Camera.h"
 
+DeferredShaderClass* DeferredShaderClass::INSTANCE;
+
 DeferredShaderClass::DeferredShaderClass()
 {
 	// Create constant buffer
